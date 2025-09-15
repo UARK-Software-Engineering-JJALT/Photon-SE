@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend
+    container_name: photon-backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:16
+    container_name: photon-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+  frontend:
+    build: ./frontend
+    container_name: photon_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
