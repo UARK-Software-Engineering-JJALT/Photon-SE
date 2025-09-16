@@ -11,12 +11,11 @@ def hello():
 def hellothere():
     return {"message": "Hello, there!"}
 
-@app("/cow")
+@app.route("/cow")
 def moo():
     return {"message": "Moooo"}
 
 if __name__ == "__main__":
-    # Bind to all interfaces so Docker can expose it
     app.run(host="0.0.0.0", port=5000, debug=True)
 
 

@@ -4,8 +4,6 @@ services:
     container_name: photon-backend
     ports:
       - "5000:5000"
-    depends_on:
-      - database
 
   database:
     image: postgres:16
