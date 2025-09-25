@@ -28,7 +28,7 @@ docker compose build
 docker compose up
 ```
 
-- Frontend will be available at http://localhsot:3000
+- Frontend will be available at http://localhost:3000
 - Backend API will be at http://localhost:5000
 - PostgreSQL will listen on port 5432
 
