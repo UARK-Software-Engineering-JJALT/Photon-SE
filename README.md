@@ -101,6 +101,5 @@ and port is 5432
   jaxbkr: Jackson Baker
   analog-wizard: Alexander Spicer
   Leo Teeuwen: Leo Teeuwen
-  TODO: I don't see any of your names in the repo
-  XXXX: Jonatan Chavez-Vasquez
-  XXXX: Tristan Jones
+  natanojjj: Jonatan Chavez-Vasquez
+  TristanJ04: Tristan Jones
