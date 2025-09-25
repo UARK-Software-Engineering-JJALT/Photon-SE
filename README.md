@@ -3,58 +3,20 @@
 Photon is a full-stack web application consisting of:
 
 - **Frontend**: Next.js
-- **Backend**: Flask (Python)
+- **Backend**: Python w/ Websocket
 - **Database**: PostgreSQL
 
 ---
 
-## Prerequisites
-
-Before running Photon, make sure you have [docker](https://docs.docker.com/engine/install/) installed.
-
-Verify installation:
-
-```bash
-docker --version
-docker compose version
-```
-
-## Production
-
-Deployment for Production:
-
-```bash
-docker compose build
-docker compose up
-```
-
-- Frontend will be available at http://localhost:3000
-- Backend API will be at http://localhost:5000
-- PostgreSQL will listen on port 5432
-
-To stop the stack:
-```bash
-docker compose down
-```
-
 ## Development
 
-At the moment, docker-compose.yaml only really works to start a production build the the program. In order to develop and each component separetely, you will need to start each component separetely which would require a few things to be installed on your system
-
 Development dependencies:
-
 
 - [Python 3](https://www.python.org/downloads/)
 - [Poetry](https://python-poetry.org/docs/#installing-with-pipx)
 - [Node Package Manager](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 
 Once you've installed the development dependencies, you can follow instructions to start each component.
-
-### Start Database
-
-```bash
-docker compose up database
-```
 
 ### Start Backend
 
@@ -74,28 +36,27 @@ npm run dev
 
 TODO for the future:
 
--Create a docker-compose.dev.yaml fil that would enable hot-reloading for Flask and Next.js
+-Create a start.sh script to start up both the frontend and backend in the same time concurrently in one terminal. Also add dependency checking.
 
 ## Project Structure
 
 ```bash
 .
-├── backend/        # Flask backend (Python, Poetry)
+├── backend/        # Python backend 
 ├── frontend/       # Next.js frontend
 ├── database/       # Database init scripts
-├── docker-compose.yaml
 └── README.md
 ```
 
 ## Notes
 
-The default credentials for the database are:
-- User: postgres
-- Password: postgres
-- Database: postgres
+### Ports:
 
-and port is 5432
+UDP Recieve: 7500
+UDP Transmit: 7501 
+Websocket: 8765
 
+- Frontend will be available at http://localhost:3000
 
 ## Names
   jaxbkr: Jackson Baker
