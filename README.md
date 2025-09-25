@@ -96,3 +96,8 @@ The default credentials for the database are:
 
 and port is 5432
 
+
+## Names
+  jaxbkr: Jackson Baker
+  analog-wizard: Alexander Spicer
+  Leo Teeuwen: Leo Teeuwen
