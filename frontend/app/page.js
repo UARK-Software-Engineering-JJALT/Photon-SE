@@ -7,6 +7,7 @@ export default function Home() {
       <h1 className="m-auto inline-flex items-center gap-2 text-4xl font-bold text-amber-500 ">
         Hello Photon!
         <LightBulbIcon className="size-8" />
+        <button className="btn">Start</button>
       </h1>
     </div>
   );
