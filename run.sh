@@ -10,10 +10,10 @@ python3 -m pipx ensurepath
 source ~/.bashrc
 cd ./frontend
 pnpm i
-cd ..
+cd ../backend
 pipx install poetry
 pipx ensurepath
-cd ./backend
 poetry install
-cd ..
+python3 main.py & 
+cd ../frontend
 pnpm run dev
