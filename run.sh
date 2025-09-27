@@ -7,6 +7,7 @@ corepack enable pnpm
 apt install pip python3-venv
 python3 -m pip install pipx
 python3 -m pipx ensurepath
+source ~/.bashrc
 cd ./frontend
 pnpm i
 cd ..
