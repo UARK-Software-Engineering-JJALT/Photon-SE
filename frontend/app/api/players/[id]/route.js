@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { get_player, update_player, remove_player } from "@/utils/db";
+import { get_player, update_player, remove_player } from "@/app/utils/db";
 
 export async function GET(req, { params }) {
   try {
