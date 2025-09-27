@@ -26,6 +26,7 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+    const { id } = await params
     try {
         const result = await remove_player(id);
         return NextResponse.json(result.rows[0] || { message: "Deleted" });
