@@ -9,39 +9,30 @@ const client = new Client({
 });
 await client.connect();
 
-export const add_player = async (id, player) => {
-  if (id.length === 0) {
-    return;
-  }
-  let addition_array = Array.from(id, (id_c, index) => {
-    return [id_c, player[index]];
-  });
-  return await client.query(`INSERT INTO players (id, codename) VALUES ${addition_array.toString()
-    .replace("[", "(")
-    .replace("]", ")")
-    .replace("\n", "")};`);
+export const add_player = async (id, codename) => {
+  return client.query(
+    "INSERT INTO players (id, codename) VALUES ($1, $2) RETURNING *",
+    [id, codename]
+  );
 };
 
-export const remove_player = async (id_t) => {
-  let id_array = Array.from(id_t).map(_ => parseInt(_, 0)).filter(_ => _ != NaN).toString()
-    .replace("[", "(")
-    .replace("]", ")")
-    .replace("\n", "");
-  let codename_array = Array.from(id_t).map(_ => parseInt(_, 0)).filter(_ => _ == NaN).toString()
-    .replace("[", "(")
-    .replace("]", ")")
-    .replace("\n", "");
-  return await client.query(`DELETE FROM players WHERE id IN ${id_array} OR codename IN ${codename_array};`);
+export const remove_player = async (id) => {
+  return client.query("DELETE FROM players WHERE id = $1 RETURNING *", [id]);
 };
 
-export const get_player = async (id_t) => {
-  let id_array = Array.from(id_t).map(_ => parseInt(_, 0)).filter(_ => _ != NaN).toString()
-    .replace("[", "(")
-    .replace("]", ")")
-    .replace("\n", "");
-  let codename_array = Array.from(id_t).map(_ => parseInt(_, 0)).filter(_ => _ == NaN).toString()
-    .replace("[", "(")
-    .replace("]", ")")
-    .replace("\n", "");
-  return await client.query(`SELECT * FROM players WHERE id IN ${id_array} OR codename IN ${codename_array};`);
+export const get_player = async (id) => {
+  const res = await client.query("SELECT * FROM players WHERE id = $1", [id]);
+  return res.rows[0] || null;
+};
+
+export const update_player = async (id, codename) => {
+  return client.query(
+    "UPDATE players SET codename = $2 WHERE id = $1 RETURNING *",
+    [id, codename]
+  );
+};
+
+export const get_all_players = async () => {
+  const res = await client.query("SELECT * FROM players ORDER BY id ASC");
+  return res.rows;
 };
