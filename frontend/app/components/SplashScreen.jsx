@@ -7,12 +7,13 @@ export default function SplashScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false)
+      localStorage.setItem("splash", 1)
     }, 3000)
 
     return () => clearTimeout(timer)
   }, [])
 
-  if (!visible) return null
+  if (!visible || localStorage.getItem("splash") == 1) return null
 
   return (
     <div className="fixed z-50 inset-0 w-full h-full show-outline">
