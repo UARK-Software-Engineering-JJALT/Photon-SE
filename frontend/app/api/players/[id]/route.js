@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { get_player, update_player, remove_player } from "@/app/utils/db";
 
 export async function GET(req, { params }) {
-    const id = await params.id
+    const { id } = await params
     try {
         const player = await get_player(id);
         if (!player) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -14,6 +14,7 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
+    const { id } = await params
     try {
         const { alias } = await req.json();
         const result = await update_player(id, alias);
