@@ -13,8 +13,6 @@ export default function Home() {
 
       <h1 className="text-4xl font-bold text-amber-500">Enter Players</h1>
       <TeamManager />
-
-      <TeamManager />
     </div>
   )
 }

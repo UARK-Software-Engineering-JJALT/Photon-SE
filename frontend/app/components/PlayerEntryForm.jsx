@@ -1,39 +1,68 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-export default function PlayerEntryForm({ onSubmit, initialId = "", initialAlias = "" }) {
-  const [id, setId] = useState(initialId)
-  const [alias, setAlias] = useState(initialAlias)
+export default function PlayerEntryForm({ onSubmit, editingPlayer }) {
+  const [id, setId] = useState("")
+  const [alias, setAlias] = useState("")
+  const [team, setTeam] = useState("red")
   const [needsAlias, setNeedsAlias] = useState(false)
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (editingPlayer) {
+      setId(editingPlayer.id)
+      setAlias(editingPlayer.alias)
+      setTeam(editingPlayer.team)
+      setNeedsAlias(!editingPlayer.alias)
+    }
+  }, [editingPlayer])
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!id.trim()) return
-    onSubmit(id.trim(), alias || null, setNeedsAlias)
+    if (!id) return alert("Player ID is required")
+    if (needsAlias && !alias) return alert("Alias is required")
+
+    onSubmit({
+      id,
+      alias,
+      team,
+      hardwareId: editingPlayer?.hardwareId || null, // keep existing hwid if any
+    })
+
+    // reset form
     setId("")
     setAlias("")
+    setTeam("red")
+    setNeedsAlias(false)
   }
 
   return (
-    <form className="flex gap-3 m-5" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={id}
-        onChange={(e) => setId(e.target.value)}
-        placeholder="Player ID"
-        className="input"
-      />
-      {(needsAlias || initialAlias) && (
+    <form className="flex flex-col gap-3 p-4 border rounded-lg" onSubmit={handleSubmit}>
+      <div className="flex gap-3">
         <input
           type="text"
+          placeholder="Player ID"
+          className="input"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+        />
+        <select className="select" value={team} onChange={(e) => setTeam(e.target.value)}>
+          <option value="red">Red Team</option>
+          <option value="green">Green Team</option>
+        </select>
+      </div>
+
+      {needsAlias && (
+        <input
+          type="text"
+          placeholder="Alias"
+          className="input"
           value={alias}
           onChange={(e) => setAlias(e.target.value)}
-          placeholder="Enter Alias"
-          className="input"
         />
       )}
-      <button className="btn" type="submit">
-        {needsAlias ? "Save Alias" : "Enter"}
+
+      <button type="submit" className="btn btn-primary mt-2">
+        {editingPlayer ? "Update Player" : "Add Player"}
       </button>
     </form>
   )
