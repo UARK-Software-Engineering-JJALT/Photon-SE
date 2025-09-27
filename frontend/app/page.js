@@ -1,3 +1,4 @@
+""
 import { LightBulbIcon } from "@heroicons/react/24/solid";
 import SplashScreen from "./components/SplashScreen";
 export default function Home() {

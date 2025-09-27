@@ -1,6 +1,7 @@
 # src/main.py
 import asyncio
 import websockets
+import json
 
 # TODO Allow client to be changeable from 127.0.0.1 default to inputted by user optionally
 # Seems this script will grab the port 8765 broadcast and then pass it over to Tristan?
@@ -11,25 +12,28 @@ game_running = True
 async def broadcast(message: dict):
     if connected_clients:
         # The only connected client is going to be the frontend
-        await asyncio.gather(*(client.send(message) for client in connected_clients))
+        data = json.dumps(message)
+        await asyncio.gather(*(client.send(data) for client in connected_clients))
 
 async def handle_client(websocket):
     global game_running
     connected_clients.add(websocket)
     try:
-        async for message in websocket:
-            # We are working with a payload that looks like (example):
-            '''
-            {
-                type: "start",
-                message: "12:51"
-            }
-            '''
-            print("Message gotten!: ", message)
-            messageType = message[0]["type"]
+        async for raw_message in websocket:
 
-            # Assume the input is valid (I know.) and start a task
-            asyncio.create_task()
+            print("Raw message: ", raw_message)
+
+            try:
+                message = json.loads(raw_message)
+            except json.JSONDecodeError:
+                await websocker.send(json.dumps({"type": "error", "message": "Invalid JSON"}))
+                continue
+
+
+            messageType = message.get("type")
+            payload = message.get("message")
+
+
             if messageType == "message":
                 await broadcast({"type": "message", "message": "Message gotten."})
             elif messageType == "start":
