@@ -1,13 +1,19 @@
-# Download and install nvm:
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-# in lieu of restarting the shell
-\. "$HOME/.nvm/nvm.sh"
-corepack enable pnpm
-python3 -m pip install --user pipx
+#!/bin/bash
 
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+source ~/.bashrc
+nvm install 22
+corepack enable pnpm
+apt install pip python3-venv
+python3 -m pip install pipx
+python3 -m pipx ensurepath
+source ~/.bashrc
+cd ./frontend
 pnpm i
+cd ../backend
 pipx install poetry
-cd ./backend
+pipx ensurepath
 poetry install
-cd ..
+poetry run python ./src/main.py & 
+cd ../frontend
 pnpm run dev
