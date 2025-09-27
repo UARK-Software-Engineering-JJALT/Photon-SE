@@ -4,8 +4,9 @@ import { Client } from "pg";
 //library claims to use environ variables
 //to fill gaps
 const client = new Client({
-  //host: "127.0.0.1",
-  database: "photon"
+  host: "127.0.0.1",
+  database: "photon",
+  password: "student"
 });
 await client.connect();
 
