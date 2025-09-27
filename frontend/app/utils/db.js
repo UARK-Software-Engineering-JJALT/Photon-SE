@@ -34,7 +34,7 @@ export const remove_player = async (id_t) => {
   return await client.query(`DELETE FROM players WHERE id IN ${id_array} OR codename IN ${codename_array};`);
 };
 
-const get_player = async (id_t) => {
+export const get_player = async (id_t) => {
   let id_array = Array.from(id_t).map(_ => parseInt(_, 0)).filter(_ => _ != NaN).toString()
     .replace("[", "(")
     .replace("]", ")")
