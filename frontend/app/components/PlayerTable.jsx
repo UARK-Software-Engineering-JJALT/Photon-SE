@@ -55,7 +55,7 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
                 </thead>
                 <tbody>
                     {players.map((p) => {
-                        const isEditing = editingHardwareId === p.id || p.hardwareId == null
+                        const isEditing = editingHardwareId === p.id
                         return (
                             <tr key={`${p.team}-${p.id}`}>
                                 <td>{p.id}</td>
@@ -65,15 +65,11 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
                                         <input
                                             type="number"
                                             className="input input-sm w-20"
-                                            value={
-                                                editingHardwareId === p.id
-                                                    ? hardwareInput
-                                                    : p.hardwareId ?? ""
-                                            }
+                                            value={hardwareInput}
                                             onChange={(e) => setHardwareInput(e.target.value)}
                                         />
                                     ) : (
-                                        p.hardwareId
+                                        p.hardwareId ?? ""
                                     )}
                                 </td>
                                 <td className="flex gap-2">
