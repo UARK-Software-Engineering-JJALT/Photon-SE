@@ -1,20 +1,20 @@
 "use client"
 import { useState } from "react"
 
-export default function PlayerTable({ team, players, onRemove, onEdit, socket }) {
+export default function PlayerTable({ team, players, onRemove, onEdit, socketRef }) {
     const [editingHardwareId, setEditingHardwareId] = useState(null)
     const [hardwareInput, setHardwareInput] = useState("")
 
     const sendMessage = (msg) => {
-        console.log(`attempting to send message ${JSON.stringify(msg)}`)
-        console.log(socket)
-        console.log(socket.readyState)
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify(msg))
+        const ws = socketRef.current
+        console.log("attempting to send", msg, ws?.readyState)
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(msg))
         } else {
             console.warn("Socket not open. Message not sent:", msg)
         }
     }
+
 
 
     const startEdit = (player) => {
