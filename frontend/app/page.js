@@ -1,14 +1,18 @@
-import { LightBulbIcon } from "@heroicons/react/24/solid";
-import SplashScreen from "./components/SplashScreen";
+import SplashScreen from "./components/SplashScreen"
+import TeamManager from "./components/TeamManager"
+import WebsocketStatus from "./components/WebsocketStatus"
+
 export default function Home() {
   return (
-    <div className="w-full flex flex-col align-center justify-center p-4 m-auto text-center">
-      <SplashScreen/>
-      <h1 className="m-auto inline-flex items-center gap-2 text-4xl font-bold text-amber-500 ">
-        Hello Photon!
-        <LightBulbIcon className="size-8" />
-        <button className="btn">Start</button>
-      </h1>
+    <div className="relative w-full h-screen flex flex-col items-center justify-center">
+      <SplashScreen />
+
+      <div className="absolute top-4 right-4">
+        <WebsocketStatus />
+      </div>
+
+      <h1 className="text-4xl font-bold text-amber-500">Enter Players</h1>
+      <TeamManager />
     </div>
-  );
+  )
 }
