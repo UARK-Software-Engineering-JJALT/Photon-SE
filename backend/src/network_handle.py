@@ -2,6 +2,7 @@ import socket
 import threading 
 import asyncio
 import queue 
+import json
 
 #Expected Values (can be removed if everyone already gets it)
 localIP = '0.0.0.0'
@@ -11,21 +12,30 @@ bufferSize = 1024
 
 
 class NetworkHandler(socket.socket): 
-    def __init__(self, recPort, broadPort, bufferSize, host='',):
-        super().__init__(socket.AF_INET, socket.SOCK_DGRAM)
-        
-        #Allows socket to send and recieve messages
-        self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-
+    def __init__(self, recPort=7501, broadPort=7500, bufferSize=1024, host='0.0.0.0',):
         self.recPort = recPort
         self.broadPort = broadPort
         self.bufferSize = bufferSize
-        self.listening = False
-        self.messageHandler = None
+        self.host = host
+
+        # UDP broadcast socket (for sending)
+        self.udp_broadcast_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udp_broadcast_sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+        # UDP receive socket
+        self.udp_receive_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udp_receive_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.udp_receive_sock.bind((self.host, self.recPort))
+
+        # WebSocket clients
         self.connected_clients = set()
+
+        # Async event loop
+        self.loop = None
+
+        # For message forwarding queue if needed
         self.message_queue = queue.Queue()
-        self.event_loop = None
+        self.listening = False
 
     def set_event_loop(self, loop):
         #Set asyncio event loop for websocket forwarding
@@ -40,55 +50,40 @@ class NetworkHandler(socket.socket):
         print(f"Websocket client removed.")
 
 
-    def start_receiver(self, host='', port=None):
-        #listen for messages
-        if port:
-            self.recPort = port
-        
-        try: 
-            bind_host = host if host else ''
-            self.bind((bind_host, self.recPort))
-            self.listening = True
-            print(f"UDP reciever started on {self.recPort}")
-            threading.Thread(target=self.listen_for_message, daemon=True).start()
-        
-        except Exception as e:
-            print("Error starting UDP reciever")
+    def start_receiver(self):
+        self.listening = True
+        threading.Thread(target=self.listen_for_message, daemon=True).start()
+        print(f"UDP receiver started on {self.network_ip}:{self.rec_port}")
     
     def listen_for_message(self):
-        #listen indefinitely 
         while self.listening:
             try:
-                data, address = self.recvfrom(self.bufferSize)
-                message = data.decode()
-                print(f"Recieved from {address} : {message}")
+                data, addr = self.udp_receive_sock.recvfrom(self.buffer_size)
+                message = data.decode("utf-8")
+                print(f"Received UDP from {addr}: {message}")
 
-                if self.messageHandler:
-                    self.messageHandler(message, address)
-                
-                #if there's an event loop, schedule forwarding
-                if self.event_loop and self.connected_clients:
-                    asyncio.run_coroutine_threadsafe(self.forward_to_websockets(message, address), self.event_loop)
+                # Forward to WebSocket clients
+                if self.loop and self.connected_clients:
+                    asyncio.run_coroutine_threadsafe(
+                        self.forward_to_websockets(message, addr),
+                        self.loop
+                    )
 
-                #forward to Websocket client after forwarding to MH
-                self.message_queue.put((message, address))
+                # Optionally put into internal queue
+                self.message_queue.put((message, addr))
 
             except Exception as e:
                 if self.listening:
-                    print(f"Failed Recieving message: {e}")
+                    print(f"Error receiving UDP message: {e}")
+    
+    async def forward_to_websockets(self, message, addr):
+        if self.connected_clients:
+            data = json.dumps({"type": "udp_message", "payload": message, "from": str(addr)})
+            await asyncio.gather(*(client.send(data) for client in self.connected_clients))
     
     def set_message_handler(self, handler):
         self.messageHandler = handler
     
-    async def broadcast_message(self, message: str):
-        #touching leo's little function
-        try: 
-            from main import broadcast
-            await broadcast(message)
-            print(f"Broadcasted via main: {message}")
-        except Exception as e:
-            print(f"Failed to broadcast via main: {e}")
-
     def broadcast_udp_message(self, message):
         #Broadcast via UDP
         try: 
@@ -106,17 +101,12 @@ class NetworkHandler(socket.socket):
         try:
             if isinstance(message, str):
                 message = message.encode("utf-8")
-
-            self.sendto(message, (host, port))
-            print(f"UDP message sent to {host}:{port}")
+            self.udp_broadcast_sock.sendto(message, (host, port))
+            print(f"Sent UDP to {host}:{port}: {message.decode()}")
 
         except Exception as e:
-            print(f"Failed to send UDP message to {host}:{port}")
+            print(f"Failed to send UDP message: {e}")
     
-    async def forward_to_websockets(self, message, address):
-        if self.connected_clients:
-            formatted_message = f"UDP from {address}: {message}"
-            await self.broadcast_message(formatted_message)
 
     def send_message(self, message, host, port):
         #send message upon broadcast
@@ -132,61 +122,63 @@ class NetworkHandler(socket.socket):
     
     def stop(self):
         self.listening = False
-        self.close()
+        self.udp_receive_sock.close()
+        self.udp_broadcast_sock.close()
+        print("NetworkHandler stopped")
 
 
 
-## Test function to simulate how this would work with your main.py
-async def test_integration():
-    print("Testing NetworkHandler with WebSocket simulation...")
+# ## Test function to simulate how this would work with your main.py
+# async def test_integration():
+#     print("Testing NetworkHandler with WebSocket simulation...")
     
-    # Create network handler
-    handler = NetworkHandler(recPort=7501, broadPort=7500, bufferSize=1024)
+#     # Create network handler
+#     handler = NetworkHandler(recPort=7501, broadPort=7500, bufferSize=1024)
     
-    # Set the event loop for proper WebSocket forwarding
-    handler.set_event_loop(asyncio.get_running_loop())
+#     # Set the event loop for proper WebSocket forwarding
+#     handler.set_event_loop(asyncio.get_running_loop())
     
-    # Simulate WebSocket clients
-    class MockWebSocket:
-        def __init__(self, name):
-            self.name = name
-            self.messages = []
+#     # Simulate WebSocket clients
+#     class MockWebSocket:
+#         def __init__(self, name):
+#             self.name = name
+#             self.messages = []
         
-        async def send(self, message):
-            self.messages.append(message)
-            print(f"{self.name} received: {message}")
+#         async def send(self, message):
+#             self.messages.append(message)
+#             print(f"{self.name} received: {message}")
     
-    # Add mock WebSocket clients
-    client1 = MockWebSocket("Frontend Client 1")
-    client2 = MockWebSocket("Frontend Client 2")
-    handler.add_websocket_client(client1)
-    handler.add_websocket_client(client2)
+#     # Add mock WebSocket clients
+#     client1 = MockWebSocket("Frontend Client 1")
+#     client2 = MockWebSocket("Frontend Client 2")
+#     handler.add_websocket_client(client1)
+#     handler.add_websocket_client(client2)
     
-    # Start UDP receiver
-    handler.start_receiver()
+#     # Start UDP receiver
+#     handler.start_receiver()
     
-    # Wait for receiver to start
-    await asyncio.sleep(1)
+#     # Wait for receiver to start
+#     await asyncio.sleep(1)
     
-    # Test 1: Broadcast via WebSocket using main.py's broadcast style
-    print("\n--- Test 1: WebSocket Broadcast ---")
-    await handler.broadcast_message("Hello WebSocket clients!")
+#     # Test 1: Broadcast via WebSocket using main.py's broadcast style
+#     print("\n--- Test 1: WebSocket Broadcast ---")
+#     await handler.broadcast_message("Hello WebSocket clients!")
     
-    # Test 2: Send UDP message (should forward to WebSocket clients)
-    print("\n--- Test 2: UDP to WebSocket Forwarding ---")
-    handler.broadcast_udp_message("Test UDP message")
-    await asyncio.sleep(1)  # Allow time for forwarding
+#     # Test 2: Send UDP message (should forward to WebSocket clients)
+#     print("\n--- Test 2: UDP to WebSocket Forwarding ---")
+#     handler.broadcast_udp_message("Test UDP message")
+#     await asyncio.sleep(1)  # Allow time for forwarding
     
-    # Test 3: Direct UDP communication
-    print("\n--- Test 3: Direct UDP Communication ---")
-    handler.send_udp_message("Direct UDP test", "127.0.0.1", 7501)
-    await asyncio.sleep(1)
+#     # Test 3: Direct UDP communication
+#     print("\n--- Test 3: Direct UDP Communication ---")
+#     handler.send_udp_message("Direct UDP test", "127.0.0.1", 7501)
+#     await asyncio.sleep(1)
     
-    # Cleanup
-    handler.stop()
-    print("Test completed")
+#     # Cleanup
+#     handler.stop()
+#     print("Test completed")
 
 
-if __name__ == "__main__":
-    # Run the test
-    asyncio.run(test_integration())
+# if __name__ == "__main__":
+#     # Run the test
+#     asyncio.run(test_integration())

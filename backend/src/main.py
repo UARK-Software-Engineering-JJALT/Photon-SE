@@ -1,59 +1,63 @@
-# src/main.py
 import asyncio
 import websockets
 import json
+import sys
+from network_handle import NetworkHandler
 
-# TODO Allow client to be changeable from 127.0.0.1 default to inputted by user optionally
-# Seems this script will grab the port 8765 broadcast and then pass it over to Tristan?
+#First argument is the ip address for the udp host network
+network_ip = sys.argv[1] if len(sys.argv) > 1 else "0.0.0.0"
+print(f"Using UDP network IP: {network_ip}")
+
+# Initialize NetworkHandler
+network_handler = NetworkHandler(network_ip=network_ip)
+network_handler.start_udp_receiver()
+
+# Forward asyncio event loop
+loop = asyncio.get_event_loop()
+network_handler.set_event_loop(loop)
 
 connected_clients = set()
-game_running = True
 
-async def broadcast(message: dict):
+
+async def broadcast_to_websockets(message: dict):
     if connected_clients:
-        # The only connected client is going to be the frontend
         data = json.dumps(message)
         await asyncio.gather(*(client.send(data) for client in connected_clients))
 
 async def handle_client(websocket):
-    global game_running
     connected_clients.add(websocket)
+    network_handler.add_websocket_client(websocket)
     try:
         async for raw_message in websocket:
-
-            print("Raw message: ", raw_message)
-
+            print("Received WebSocket message:", raw_message)
             try:
                 message = json.loads(raw_message)
             except json.JSONDecodeError:
-                await websocker.send(json.dumps({"type": "error", "message": "Invalid JSON"}))
+                await websocket.send(json.dumps({"type": "error", "message": "Invalid JSON"}))
                 continue
 
+            msg_type = message.get("type")
+            payload = message.get("payload")
 
-            messageType = message.get("type")
-            payload = message.get("message")
-
-
-            if messageType == "message":
-                await broadcast({"type": "message", "message": "Message gotten."})
-            elif messageType == "start":
-                if not game_running:
-                    game_running = True
-                    # TODO import and put Tristan's code here that will start the game
-                    # TODO Make some normal 
-                    await broadcast({"type": "message", "message": "Game Started!"})
-                else:
-                    await broadcast({"type": "message", "message": "Game Already Started!"})
-            elif messageType == "stop":
-                game_running = False
-                await broadcast({"type": "message", "message": "Game Stopped!"})
+            if msg_type == "player_entry" and payload is not None:
+                # Broadcast over UDP
+                network_handler.broadcast_udp(str(payload))
+                await websocket.send(json.dumps({"type": "ack", "payload": payload}))
+            else:
+                await websocket.send(json.dumps({"type": "error", "message": "Unknown message type"}))
     finally:
         connected_clients.remove(websocket)
+        network_handler.remove_websocket_client(websocket)
 
 async def main():
-    async with websockets.serve(handle_client, "localhost", 8765):
-        print("Server running on ws://localhost:8765")
-        await asyncio.Future()
+    ws_server = await websockets.serve(handle_client, network_ip, 8765)
+    print(f"WebSocket server running on ws://{network_ip}:8765")
+    await ws_server.wait_closed()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        network_handler.stop()
