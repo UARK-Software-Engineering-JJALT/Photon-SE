@@ -42,7 +42,7 @@ async def handle_client(websocket):
 
             if msg_type == "player_entry" and payload is not None:
                 # Broadcast over UDP
-                network_handler.broadcast_udp(str(payload))
+                network_handler.broadcast_udp_message(str(payload))
                 await websocket.send(json.dumps({"type": "ack", "payload": payload}))
             else:
                 await websocket.send(json.dumps({"type": "error", "message": "Unknown message type"}))
