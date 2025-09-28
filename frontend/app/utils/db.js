@@ -1,12 +1,8 @@
 import { Client } from "pg";
 
-//Specify values if nonfunctional
-//library claims to use environ variables
-//to fill gaps
 const client = new Client({
   host: "127.0.0.1",
-  database: "photon",
-  password: "student"
+  database: "photon"
 });
 await client.connect();
 

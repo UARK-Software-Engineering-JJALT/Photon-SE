@@ -49,7 +49,7 @@ export default function TeamManager() {
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="mt-12 max-w-3/4 w-full flex flex-col gap-6">
             <PlayerEntryForm onSubmit={addOrUpdatePlayer} editingPlayer={editingPlayer} />
             <div className="flex gap-10">
                 <PlayerTable

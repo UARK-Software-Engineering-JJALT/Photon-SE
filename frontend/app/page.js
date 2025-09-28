@@ -4,14 +4,14 @@ import WebsocketStatus from "./components/WebsocketStatus"
 
 export default function Home() {
   return (
-    <div className="relative w-full h-screen flex flex-col items-center justify-center">
+    <div className="relative w-full h-screen flex flex-col items-center">
       <SplashScreen />
 
       <div className="absolute top-4 right-4">
         <WebsocketStatus />
       </div>
 
-      <h1 className="text-4xl font-bold text-amber-500">Enter Players</h1>
+      <h1 className="text-4xl font-bold text-amber-500 mt-12">Enter Players</h1>
       <TeamManager />
     </div>
   )
