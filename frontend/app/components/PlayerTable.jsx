@@ -6,6 +6,9 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
     const [hardwareInput, setHardwareInput] = useState("")
 
     const sendMessage = (msg) => {
+        console.log(`attempting to send message ${JSON.stringify(msg)}`)
+        console.log(socket)
+        console.log(socket.readyState)
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(msg))
         } else {
