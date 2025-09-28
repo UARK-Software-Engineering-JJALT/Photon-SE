@@ -5,7 +5,7 @@ import PlayerTable from "./PlayerTable"
 
 const LOCAL_STORAGE_KEY = "teamPlayers"
 
-export default function TeamManager() {
+export default function TeamManager({socket}) {
     const [players, setPlayers] = useState([]) // all players in session
     const [editingPlayer, setEditingPlayer] = useState(null)
 
@@ -57,6 +57,7 @@ export default function TeamManager() {
                     players={players.filter((p) => p.team === "red")}
                     onRemove={handleRemove}
                     onEdit={handleEdit}
+                    socket={socket}
                 />
                 <PlayerTable
                     team="green"
