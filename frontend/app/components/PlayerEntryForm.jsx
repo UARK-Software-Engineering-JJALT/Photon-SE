@@ -14,8 +14,10 @@ export default function PlayerEntryForm({ onSubmit }) {
     try {
       // Check if player exists in DB
       const res = await fetch(`/api/players/${id}`)
+      console.log(res)
       if (res.ok) {
         const existing = await res.json()
+        console.log(existing)
         onSubmit({
           id: existing.id,
           alias: existing.alias,
