@@ -7,15 +7,8 @@ export default function SplashScreen() {
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    const hasSeenSplash = localStorage.getItem("splash") === "1"
-    if (hasSeenSplash) {
-      setVisible(false)
-      return
-    }
-
     const timer = setTimeout(() => {
       setVisible(false)
-      localStorage.setItem("splash", "1")
     }, 3000)
 
     return () => clearTimeout(timer)
@@ -24,8 +17,11 @@ export default function SplashScreen() {
   if (!visible) return null
 
   return (
-    <div className="fixed z-50 inset-0 w-full h-full bg-white flex items-center justify-center">
-      <img src="logo.jpg" alt="Logo" className="w-48 h-48 object-contain" />
-    </div>
+    <div
+  className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-center bg-no-repeat bg-contain"
+  style={{ backgroundImage: "url('logo.jpg')" }}
+>
+</div>
+
   )
 }
