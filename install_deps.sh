@@ -14,6 +14,3 @@ cd ../backend
 pipx install poetry
 pipx ensurepath
 poetry install
-poetry run python ./src/main.py & 
-cd ../frontend
-pnpm run dev
