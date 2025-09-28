@@ -1,11 +1,11 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import SplashScreen from "./components/SplashScreen"
 import TeamManager from "./components/TeamManager"
 import WebsocketStatus from "./components/WebsocketStatus"
 
 export default function Home() {
-  const [socket, setSocket] = useState(null)
+  const socketRef = useRef(null)
   const [status, setStatus] = useState("connecting")
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function Home() {
     const connect = () => {
       setStatus("connecting")
       ws = new WebSocket("ws://localhost:8765")
-      setSocket(ws)
+      socketRef.current = ws
 
       ws.onopen = () => {
         setStatus("connected")
@@ -35,9 +35,13 @@ export default function Home() {
 
     connect()
 
-    return () => ws && ws.close()
+    
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close()
+      }
+    }
   }, [])
-
 
   return (
     <div className="relative w-full h-screen flex flex-col items-center">
@@ -48,7 +52,7 @@ export default function Home() {
       </div>
 
       <h1 className="text-4xl font-bold text-amber-500 mt-12">Enter Players</h1>
-      <TeamManager socket={socket} />
+      <TeamManager socket={socketRef.current} />
     </div>
   )
 }
