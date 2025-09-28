@@ -2,7 +2,8 @@ import { Client } from "pg";
 
 const client = new Client({
   host: "127.0.0.1",
-  database: "photon"
+  database: "photon",
+  password: "student"
 });
 await client.connect();
 
