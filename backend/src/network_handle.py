@@ -90,7 +90,7 @@ class NetworkHandler:
             if isinstance(message, str):
                 message = message.encode("utf-8")
 
-            self.sendto(message, ('<broadcast>', self.broadPort))
+            self.udp_broadcast_sock.sendto(message, ('<broadcast>', self.broadPort))
             print(f"UDP message broadcasted to port {self.broadPort}")
 
         except Exception as e:
