@@ -9,11 +9,12 @@ network_ip = sys.argv[1] if len(sys.argv) > 1 else "0.0.0.0"
 print(f"Using UDP network IP: {network_ip}")
 
 # Initialize NetworkHandler
-network_handler = NetworkHandler(network_ip=network_ip)
-network_handler.start_udp_receiver()
+network_handler = NetworkHandler(host=network_ip)
+network_handler.start_receiver()
 
 # Forward asyncio event loop
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
 network_handler.set_event_loop(loop)
 
 connected_clients = set()

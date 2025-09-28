@@ -11,7 +11,7 @@ recPort = 7501
 bufferSize = 1024
 
 
-class NetworkHandler(socket.socket): 
+class NetworkHandler: 
     def __init__(self, recPort=7501, broadPort=7500, bufferSize=1024, host='0.0.0.0',):
         self.recPort = recPort
         self.broadPort = broadPort
@@ -53,12 +53,12 @@ class NetworkHandler(socket.socket):
     def start_receiver(self):
         self.listening = True
         threading.Thread(target=self.listen_for_message, daemon=True).start()
-        print(f"UDP receiver started on {self.network_ip}:{self.rec_port}")
+        print(f"UDP receiver started on {self.host}:{self.recPort}")
     
     def listen_for_message(self):
         while self.listening:
             try:
-                data, addr = self.udp_receive_sock.recvfrom(self.buffer_size)
+                data, addr = self.udp_receive_sock.recvfrom(self.bufferSize)
                 message = data.decode("utf-8")
                 print(f"Received UDP from {addr}: {message}")
 
