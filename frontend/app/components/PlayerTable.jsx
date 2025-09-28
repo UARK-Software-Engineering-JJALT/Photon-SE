@@ -21,8 +21,8 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
         onEdit(player.id, player.team, hwIdInt)
 
         // Send WebSocket message
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(
+        if (socket.current && socket.current.readyState === WebSocket.OPEN) {
+            socket.current.send(
                 JSON.stringify({
                     type: "player_entry",
                     payload: hwIdInt,

@@ -34,7 +34,7 @@ export default function Home() {
       </div>
 
       <h1 className="text-4xl font-bold text-amber-500 mt-12">Enter Players</h1>
-      <TeamManager socket={socketRef.current} />
+      <TeamManager socket={socketRef} />
     </div>
   )
 }
