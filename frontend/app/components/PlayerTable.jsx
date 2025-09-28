@@ -21,13 +21,15 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
         onEdit(player.id, player.team, hwIdInt)
 
         // Send WebSocket message
-        if (socket && socket.readyState === Websocket.OPEN) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(
                 JSON.stringify({
                     type: "player_entry",
-                    payload: hardwareId,
+                    payload: hwIdInt,
                 })
             )
+        } else {
+            console.warn("Socket not open. Could not send message.")
         }
 
         setEditingHardwareId(null)
@@ -37,9 +39,8 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
     return (
         <div className="flex-1 overflow-x-auto rounded-box border bg-black">
             <h2
-                className={`text-xl font-bold p-2 ${
-                    team === "red" ? "text-red-500" : "text-green-500"
-                }`}
+                className={`text-xl font-bold p-2 ${team === "red" ? "text-red-500" : "text-green-500"
+                    }`}
             >
                 {team.charAt(0).toUpperCase() + team.slice(1)} Team
             </h2>
