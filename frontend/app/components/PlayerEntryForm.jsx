@@ -21,7 +21,7 @@ export default function PlayerEntryForm({ onSubmit }) {
         console.log(existing)
         onSubmit({
           id: existing.id,
-          alias: existing.alias,
+          alias: existing.codename,
           team,
           hardwareId: null,
         })
@@ -35,13 +35,35 @@ export default function PlayerEntryForm({ onSubmit }) {
     }
   }
 
-  const handleAliasSubmit = () => {
-    if (!alias) return alert("Alias is required")
-    onSubmit({ id, alias, team, hardwareId: null })
-    setId("")
-    setAlias("")
-    setShowAliasModal(false)
+  const handleAliasSubmit = async () => {
+  if (!alias) return alert("Alias is required");
+
+  try {
+    const res = await fetch("/api/players", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, alias }),
+    });
+
+    if (!res.ok) throw new Error("Failed to add player");
+
+    const newPlayer = await res.json();
+
+    onSubmit({
+      id: newPlayer.id,
+      alias: newPlayer.codename,
+      team,
+      hardwareId: null,
+    });
+
+    setId("");
+    setAlias("");
+    setShowAliasModal(false);
+  } catch (err) {
+    console.error(err);
+    alert("Could not save alias to database");
   }
+};
 
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg">

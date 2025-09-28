@@ -13,12 +13,16 @@ export async function GET() {
 
 
 export async function POST(req) {
-    try {
-        const { id, alias } = await req.json();
-        const result = await add_player(id, alias);
-        return NextResponse.json(result.rows[0]);
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json({ error: "Failed to add player"}, {status: 500});
+  try {
+    const { id, alias } = await req.json();
+    if (!id || !alias) {
+      return NextResponse.json({ error: "Missing id or alias" }, { status: 400 });
     }
+
+    const result = await add_player(id, alias);
+    return NextResponse.json(result.rows[0]); // return the inserted row
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Failed to add player" }, { status: 500 });
+  }
 }
