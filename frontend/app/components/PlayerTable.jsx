@@ -5,6 +5,15 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
     const [editingHardwareId, setEditingHardwareId] = useState(null)
     const [hardwareInput, setHardwareInput] = useState("")
 
+    const sendMessage = (msg) => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(msg))
+        } else {
+            console.warn("Socket not open. Message not sent:", msg)
+        }
+    }
+
+
     const startEdit = (player) => {
         setEditingHardwareId(player.id)
         setHardwareInput(player.hardwareId ?? "")
@@ -21,17 +30,10 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
         onEdit(player.id, player.team, hwIdInt)
 
         // Send WebSocket message
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(
-                JSON.stringify({
-                    type: "player_entry",
-                    payload: hwIdInt,
-                })
-            )
-        } else {
-            console.warn("Socket not open. Could not send message.")
-        }
-
+        sendMessage({
+            type: "player_entry",
+            payload: hwIdInt,
+        })
 
         setEditingHardwareId(null)
         setHardwareInput("")

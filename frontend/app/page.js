@@ -9,26 +9,35 @@ export default function Home() {
   const [status, setStatus] = useState("connecting")
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8765")
-    setSocket(ws)
+    let ws
 
-    ws.onopen = () => {
-      setStatus("connected")
-      console.log("Connected to WebSocket")
+    const connect = () => {
+      setStatus("connecting")
+      ws = new WebSocket("ws://localhost:8765")
+      setSocket(ws)
+
+      ws.onopen = () => {
+        setStatus("connected")
+        console.log("Connected to WebSocket")
+      }
+
+      ws.onclose = () => {
+        setStatus("disconnected")
+        console.log("Disconnected from WebSocket, retrying in 1s...")
+        setTimeout(connect, 1000) // auto-reconnect after 1s
+      }
+
+      ws.onerror = (err) => {
+        setStatus("error")
+        console.error("WebSocket error", err)
+      }
     }
 
-    ws.onclose = () => {
-      setStatus("disconnected")
-      console.log("Disconnected from WebSocket")
-    }
+    connect()
 
-    ws.onerror = (err) => {
-      setStatus("error")
-      console.error("WebSocket error", err)
-    }
-
-    return () => ws.close()
+    return () => ws && ws.close()
   }, [])
+
 
   return (
     <div className="relative w-full h-screen flex flex-col items-center">
