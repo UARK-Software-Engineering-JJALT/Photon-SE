@@ -64,6 +64,7 @@ export default function TeamManager({socketRef}) {
                     players={players.filter((p) => p.team === "green")}
                     onRemove={handleRemove}
                     onEdit={handleEdit}
+                    socketRef={socketRef}
                 />
             </div>
         </div>
