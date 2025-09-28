@@ -21,8 +21,8 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
         onEdit(player.id, player.team, hwIdInt)
 
         // Send WebSocket message
-        if (socket.current && socket.current.readyState === WebSocket.OPEN) {
-            socket.current.send(
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(
                 JSON.stringify({
                     type: "player_entry",
                     payload: hwIdInt,
@@ -31,6 +31,7 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socket })
         } else {
             console.warn("Socket not open. Could not send message.")
         }
+
 
         setEditingHardwareId(null)
         setHardwareInput("")
