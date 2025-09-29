@@ -35,6 +35,7 @@ To install the dependencies on the Debian VM, run the install_deps.sh shell scri
 ```bash
 chmod +x install_deps.sh
 ./install_deps.sh
+source ~/.bashrc
 ```
 
 Else follow each individual dependency to develop on your own system.
