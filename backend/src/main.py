@@ -5,11 +5,23 @@ import sys
 from network_handle import NetworkHandler
 
 #First argument is the ip address for the udp host network
-network_ip = sys.argv[1] if len(sys.argv) > 1 else "0.0.0.0"
-print(f"Using UDP network IP: {network_ip}")
+websocket_ip = "0.0.0.0"
+udp_network_ip = sys.argv[1] if len(sys.argv) > 1 else "0.0.0.0"
+
+try:
+    import socket
+    socket.inet_aton(udp_network_ip)  # Validates IPv4 format
+    print(f"Using UDP network IP: {udp_network_ip}")
+except socket.error:
+    print(f"Error: Invalid IP address format: {udp_network_ip}")
+    print("Usage: python main.py [UDP_IP_ADDRESS]")
+    print("Examples:")
+    print("  python main.py 0.0.0.0        # Bind UDP to all interfaces (default)")
+    print("  python main.py 10.3.1.53      # Bind UDP to specific interface")
+    sys.exit(1)
 
 # Initialize NetworkHandler
-network_handler = NetworkHandler(host=network_ip)
+network_handler = NetworkHandler(host=udp_network_ip)
 network_handler.start_receiver()
 
 # Forward asyncio event loop
@@ -51,8 +63,9 @@ async def handle_client(websocket):
         network_handler.remove_websocket_client(websocket)
 
 async def main():
-    ws_server = await websockets.serve(handle_client, network_ip, 8765)
-    print(f"WebSocket server running on ws://{network_ip}:8765")
+    ws_server = await websockets.serve(handle_client, websocket_ip, 8765)
+    print(f"WebSocket server running on ws://{websocket_ip}:8765 (accessible via ws://localhost:8765)")
+    print(f"UDP network using interface: {udp_network_ip}")
     await ws_server.wait_closed()
 
 if __name__ == "__main__":
