@@ -53,7 +53,7 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socketRef
                     {team.charAt(0).toUpperCase() + team.slice(1)} Team
                 </h2>
                 <table className="table w-full text-white">
-                    <thead>
+                    <thead className="text-white">
                         <tr>
                             <th>ID</th>
                             <th>Alias</th>

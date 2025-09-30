@@ -99,7 +99,7 @@ export default function PlayerEntryForm({ onSubmit }) {
 
       {/* Alias Modal */}
       {showAliasModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-80">
             <h3 className="text-lg font-bold mb-3">Enter Alias</h3>
             <input
