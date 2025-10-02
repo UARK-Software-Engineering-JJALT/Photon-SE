@@ -79,15 +79,15 @@ npm run dev
 
 ### Ports:
 
-UDP Recieve: 7500
-UDP Transmit: 7501 
+UDP Recieve: 7500\
+UDP Transmit: 7501\
 Websocket: 8765
 
 - Frontend will be available at http://localhost:3000
 
-## Names
-  jaxbkr: Jackson Baker
-  analog-wizard: Alexander Spicer
-  Leo Teeuwen: Leo Teeuwen
-  natanojjj: Jonatan Chavez-Vasquez
+## Names:
+  jaxbkr: Jackson Baker\
+  analog-wizard: Alexander Spicer\
+  Leo Teeuwen: Leo Teeuwen\
+  natanojjj: Jonatan Chavez-Vasquez\
   TristanJ04: Tristan Jones
