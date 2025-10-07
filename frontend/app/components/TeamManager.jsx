@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react"
 import PlayerEntryForm from "./PlayerEntryForm"
 import PlayerTable from "./PlayerTable"
+import ResetPlayersBtn from "./ResetPlayersBtn"
 
-const LOCAL_STORAGE_KEY = "teamPlayers"
 
 export default function TeamManager({socketRef}) {
     const [players, setPlayers] = useState([]) // all players in session
@@ -12,14 +12,14 @@ export default function TeamManager({socketRef}) {
     // Load from localStorage on mount
     useEffect(() => {
         if (typeof window !== "undefined") {
-            const data = localStorage.getItem(LOCAL_STORAGE_KEY)
+            const data = localStorage.getItem("teamPlayers")
             if (data) setPlayers(JSON.parse(data))
         }
     }, [])
 
     // Save to localStorage whenever players change
     useEffect(() => {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(players))
+        localStorage.setItem("teamPlayers", JSON.stringify(players))
     }, [players])
 
     const addOrUpdatePlayer = (newPlayer) => {
@@ -66,6 +66,10 @@ export default function TeamManager({socketRef}) {
                     onEdit={handleEdit}
                     socketRef={socketRef}
                 />
+                <ResetPlayersBtn onReset={() => {
+                    setPlayers([])
+                    localStorage.removeItem("teamPlayers")
+                }} />
             </div>
         </div>
     )
