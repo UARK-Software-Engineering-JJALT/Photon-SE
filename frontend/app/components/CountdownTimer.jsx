@@ -1,8 +1,10 @@
 "use client"
 import { useState, useEffect } from "react"
+// func and whenFinished are arguments for the function to run once the timer is 0
+// and the value for that function to use respectively
 
-export default function CountdownTimer( {matchTimeMinutes = 6, gameStarted = true})  {
-    const [timeRemaining, settimeRemaining] = useState(matchTimeMinutes * 60)
+export default function CountdownTimer( {matchTimeMinutes = 6, matchTimeSeconds = 0, gameStarted = true, func, whenFinished})  {
+    const [timeRemaining, settimeRemaining] = useState(matchTimeMinutes * 60 + matchTimeSeconds)
     const [running, setRunning] = useState(gameStarted);
     
     useEffect(() => {
@@ -14,6 +16,7 @@ export default function CountdownTimer( {matchTimeMinutes = 6, gameStarted = tru
                     clearInterval(interval);
                     setRunning(false)
                     return 0;
+                    func(whenFinished)
                 }
                 return prev - 1;
             });
@@ -37,7 +40,6 @@ export default function CountdownTimer( {matchTimeMinutes = 6, gameStarted = tru
         color: "#ff580f"
       }}>
             <h2>{minutes}:{seconds}</h2>
-            {!gameStarted && <h3>Game Over</h3>}
         </div>
     );
 }
