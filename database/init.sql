@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS players (
+  id SERIAL PRIMARY KEY,
+  codename TEXT NOT NULL
+);
