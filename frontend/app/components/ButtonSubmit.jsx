@@ -9,7 +9,7 @@ export default function ButtonSubmit({ text }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 border rounded-lg">
+    <div className="flex flex-col gap-4 p-4">
       <button onClick={handleClick} className="btn btn-primary">
         {text}
       </button>

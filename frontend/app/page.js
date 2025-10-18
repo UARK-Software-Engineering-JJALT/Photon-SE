@@ -48,15 +48,21 @@ export default function Home() {
     <div className="relative w-full h-screen flex flex-col items-center">
       <SplashScreen />
 
-      <div className="absolute top-4 right-4">
-        <WebsocketStatus status={status} />
+      <div>
+        <div className="absolute top-4 right-4">
+          <WebsocketStatus status={status} />
+        </div>
+
+        <div>
+          <h1 className="text-4xl font-bold text-amber-500 mt-12">Enter Players</h1>
+          <TeamManager socketRef={socketRef} />
+          <div className="absolute bottom-0 justify-self-center">
+            <div className="flex flex-row border rounded-lg">
+              <ButtonSubmit text="Continue" onSubmit={(data) => console.log("Button pressed with data:", data)} />
+            </div>
+          </div>
+        </div>
       </div>
-
-      <h1 className="text-4xl font-bold text-amber-500 mt-12">Enter Players</h1>
-      <TeamManager socketRef={socketRef} />
-
-      <ButtonSubmit text="Continue" onSubmit={(data) => console.log("Button pressed with data:", data)} />
-
     </div>
   )
 }
