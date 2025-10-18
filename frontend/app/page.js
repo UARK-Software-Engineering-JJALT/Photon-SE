@@ -55,8 +55,7 @@ export default function Home() {
       <h1 className="text-4xl font-bold text-amber-500 mt-12">Enter Players</h1>
       <TeamManager socketRef={socketRef} />
 
-      <h1 className="text-4xl font-bold text-amber-500 mt-12">Submit Button</h1>
-      <ButtonSubmit onSubmit={(data) => console.log("Button pressed with data:", data)} />
+      <ButtonSubmit text="Continue" onSubmit={(data) => console.log("Button pressed with data:", data)} />
 
     </div>
   )
