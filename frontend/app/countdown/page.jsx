@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation"
 export default function Countdown({ text }) {
   const router = useRouter();
 
-  const handleFinish = () => {
+  //Causes error on Dev builds for reasons I have yet to understand
+  //but otherwise does the job it sets out to do
+  const handleFinish = (_) => {
     router.push("/action-screen")
   };
 
