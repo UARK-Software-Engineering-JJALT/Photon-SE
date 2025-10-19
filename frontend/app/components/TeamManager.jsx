@@ -3,17 +3,18 @@ import { useState, useEffect } from "react"
 import PlayerEntryForm from "./PlayerEntryForm"
 import PlayerTable from "./PlayerTable"
 import ResetPlayersBtn from "./ResetPlayersBtn"
+import { usePlayers } from "../utils/PlayersContext"
 
 
 export default function TeamManager({socketRef}) {
-    const [players, setPlayers] = useState([]) // all players in session
     const [editingPlayer, setEditingPlayer] = useState(null)
+    const { players, setCurrPlayers } = usePlayers();
 
     // Load from localStorage on mount
     useEffect(() => {
         if (typeof window !== "undefined") {
             const data = localStorage.getItem("teamPlayers")
-            if (data) setPlayers(JSON.parse(data))
+            if (data) setCurrPlayers(JSON.parse(data))
         }
     }, [])
 
@@ -23,7 +24,7 @@ export default function TeamManager({socketRef}) {
     }, [players])
 
     const addOrUpdatePlayer = (newPlayer) => {
-        setPlayers((prev) => {
+        setCurrPlayers((prev) => {
             const exists = prev.find((p) => p.id === newPlayer.id && p.team === newPlayer.team)
             if (exists) {
                 // update existing
@@ -37,11 +38,11 @@ export default function TeamManager({socketRef}) {
     }
 
     const handleRemove = (id, team) => {
-        setPlayers((prev) => prev.filter((p) => !(p.id === id && p.team === team)))
+        setCurrPlayers((prev) => prev.filter((p) => !(p.id === id && p.team === team)))
     }
 
     const handleEdit = (id, team, hardwareId) => {
-        setPlayers((prev) =>
+        setCurrPlayers((prev) =>
             prev.map((p) =>
                 p.id === id && p.team === team ? { ...p, hardwareId: hardwareId ?? p.hardwareId } : p
             )
@@ -67,7 +68,7 @@ export default function TeamManager({socketRef}) {
                     socketRef={socketRef}
                 />
                 <ResetPlayersBtn onReset={() => {
-                    setPlayers([])
+                    setCurrPlayers([])
                     localStorage.removeItem("teamPlayers")
                 }} />
             </div>
