@@ -1,5 +1,5 @@
 "use client"
-import { CountdownTimer } from "../components/CountdownTimer.jsx"
+import CountdownTimer from "../components/CountdownTimer.jsx"
 import { useRouter } from "next/navigation"
 
 export default function Countdown({ text }) {
@@ -9,5 +9,19 @@ export default function Countdown({ text }) {
     router.push("/action-screen")
   };
 
-  return CountdownTimer(0, 30, false, handleFinish, null);
+  return (
+    <div style={{
+        fontFamily: "Arial, sans-serif",
+        fontSize: "96px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        color: "#ffffffff"
+    }}>
+        <h1>Setup</h1>
+        {CountdownTimer({matchTimeMinutes : 0, matchTimeSeconds : 30, gameStarted : true, func : handleFinish, whenFinished : null})}
+    </div>
+  )
 }
