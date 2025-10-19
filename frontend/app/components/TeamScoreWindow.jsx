@@ -48,7 +48,7 @@ export default function TeamScoreWindow({ teamColor }) {
                 {players.map((player) => (
                     <li
                         key={player.id}
-                        className="flex justify-between items-center bg-base-300 rounded-lg px-4 py-2 shadow-sm"
+                        className="flex justify-between items-center bg-slate-600 rounded-lg px-4 py-2 shadow-sm"
                     >
                         <span className="font-semibold text-white">{player.alias}</span>
                         <span className="text-amber-400 font-bold text-lg">
