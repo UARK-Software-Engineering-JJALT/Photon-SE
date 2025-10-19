@@ -60,7 +60,7 @@ export default function Home() {
             <TeamManager socketRef={socketRef} />
             <div className="absolute bottom-0 justify-self-center">
               <div className="flex flex-row border rounded-lg">
-                <ButtonSubmit text="Continue" onSubmit={(data) => console.log("Button pressed with data:", data)} />
+                <ButtonSubmit text="Start Game" route="/countdown" onSubmit={(data) => console.log("Button pressed with data:", data)} />
               </div>
             </div>
           </div>

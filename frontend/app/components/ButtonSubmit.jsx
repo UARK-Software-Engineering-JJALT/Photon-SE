@@ -1,11 +1,11 @@
 "use client"
 import { useRouter } from "next/navigation"
 
-export default function ButtonSubmit({ text }) {
+export default function ButtonSubmit({ text, route }) {
   const router = useRouter()
 
   const handleClick = () => {
-    router.push("/action-screen")
+    router.push(route)
   }
 
   return (
