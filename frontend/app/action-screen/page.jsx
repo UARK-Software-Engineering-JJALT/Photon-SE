@@ -1,47 +1,56 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
-import WebSocketStatus from "../components/WebsocketStatus" 
 
 export default function ActionScreen() {
-  const socketRef = useRef(null)
   const [status, setStatus] = useState("connecting")
+  const [messages, setMessages] = useState([])
+  const [scores, setScores] = useState({ red: 0, green: 0 })
+  const messagesEndRef = useRef(null)
 
+  // Auto-scroll when messages change
   useEffect(() => {
-    let ws
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
-    const connect = () => {
-      setStatus("connecting")
-      ws = new WebSocket("ws://localhost:8765")
-      socketRef.current = ws
+  // WebSocket setup
+  useEffect(() => {
+    const ws = new WebSocket("ws://localhost:8765/action")
 
-      ws.onopen = () => {
-        setStatus("connected")
-        console.log("Connected to WebSocket")
-      }
-
-      ws.onclose = () => {
-        setStatus("disconnected")
-        console.log("Disconnected from WebSocket, retrying in 1s...")
-        setTimeout(connect, 1000) // auto-reconnect after 1s 
-      }
-
-      ws.onerror = (err) => {
-        setStatus("error")
-        console.error("WebSocket error", err)
+    ws.onopen = () => setStatus("connected")
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      if (data.type === "score_update") {
+        setScores(data.payload)
+      } else if (data.type === "new_message") {
+        setMessages((prev) => [...prev, data.payload])
       }
     }
+    ws.onclose = () => setStatus("disconnected")
+    ws.onerror = (err) => {
+      setStatus("error")
+      console.error("Action Screen WebSocket error", err)
+    }
 
-    connect()
     return () => {
-      if (socketRef.current) {
-        socketRef.current.close()
-      }
+      ws.close()
     }
   }, [])
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
-      <h1 className="text-4xl font-bold mb-4">Action Screen</h1>
-      <p>Action Screen Page</p>
+      <h1 className="text-5xl font-bold mb-8">Action Screen ({status})</h1>
+      <div className="text-3xl mb-8">
+        Score - Red: <span className="text-red-500">{scores.red}</span> | Green:{" "}
+        <span className="text-green-500">{scores.green}</span>
+      </div>
+      <div className="w-3/4 h-1/3 overflow-y-auto border p-4 bg-gray-800 rounded">
+        {messages.map((msg, index) => (
+          <div key={index} className="mb-2">
+            {msg}
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
     </div>
   )
 }
