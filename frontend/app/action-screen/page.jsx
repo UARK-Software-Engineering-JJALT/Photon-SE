@@ -14,7 +14,7 @@ export default function ActionScreen() {
 
   // WebSocket setup
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8765/action")
+    const ws = new WebSocket("ws://localhost:8765")
 
     ws.onopen = () => setStatus("connected")
     ws.onmessage = (event) => {
