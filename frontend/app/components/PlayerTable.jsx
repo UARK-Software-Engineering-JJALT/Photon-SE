@@ -15,8 +15,6 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socketRef
         }
     }
 
-
-
     const startEdit = (player) => {
         setEditingHardwareId(player.id)
         setHardwareInput(player.hardwareId ?? "")
