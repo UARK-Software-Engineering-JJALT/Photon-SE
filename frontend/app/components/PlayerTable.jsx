@@ -41,8 +41,8 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socketRef
     }
 
     return (
-    <div className="card w-full bg-base-100 shadow-md">
-        <div className="card-body p-2">
+    <div className="card w-full bg-base-100">
+        <div className="card-body p-2 bg-black">
             <div className="flex-1 overflow-x-auto rounded-box border bg-black">
                 <h2
                     className={`text-xl font-bold p-2 ${team === "red" ? "text-red-500" : "text-green-500"
