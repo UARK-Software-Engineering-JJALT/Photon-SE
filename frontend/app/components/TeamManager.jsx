@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react"
 import PlayerEntryForm from "./PlayerEntryForm"
 import PlayerTable from "./PlayerTable"
-import ResetPlayersBtn from "./ResetPlayersBtn"
 import { usePlayers } from "../utils/PlayersContext"
 
 
@@ -67,10 +66,6 @@ export default function TeamManager({socketRef}) {
                     onEdit={handleEdit}
                     socketRef={socketRef}
                 />
-                <ResetPlayersBtn onReset={() => {
-                    setCurrPlayers([])
-                    localStorage.removeItem("teamPlayers")
-                }} />
             </div>
         </div>
     )

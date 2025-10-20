@@ -5,6 +5,7 @@ import TeamManager from "./components/TeamManager"
 import WebsocketStatus from "./components/WebsocketStatus"
 import ButtonSubmit from "./components/ButtonSubmit"
 import { PlayersProvider } from "./utils/PlayersContext"
+import ResetPlayersBtn from "./components/ResetPlayersBtn"
 
 export default function Home() {
   const socketRef = useRef(null)
@@ -61,6 +62,7 @@ export default function Home() {
             <div className="absolute bottom-0 justify-self-center">
               <div className="flex flex-row border rounded-lg">
                 <ButtonSubmit text="Start Game" route="/countdown" onSubmit={(data) => console.log("Button pressed with data:", data)} />
+                <ResetPlayersBtn/>
               </div>
             </div>
           </div>
