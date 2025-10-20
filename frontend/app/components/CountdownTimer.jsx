@@ -14,7 +14,7 @@ export default function CountdownTimer( {matchTimeMinutes = 6, matchTimeSeconds 
                 if (prev <= 1) {
                     clearInterval(interval);
                     setRunning(false)
-                    whenFinished()
+                    func(whenFinished)
                     return 0;
                 }
                 return prev - 1;
