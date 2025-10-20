@@ -1,7 +1,10 @@
 import { Client } from "pg";
 
+const isVM = !process.env.DB_USER;
+
 const client = new Client({
   host: "127.0.0.1",
+  user: process.env.DB_USER || (isVM ? "student" : "postgres"),
   database: "photon",
   password: "student"
 });

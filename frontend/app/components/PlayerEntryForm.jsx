@@ -36,34 +36,34 @@ export default function PlayerEntryForm({ onSubmit }) {
   }
 
   const handleAliasSubmit = async () => {
-  if (!alias) return alert("Alias is required");
+    if (!alias) return alert("Alias is required");
 
-  try {
-    const res = await fetch("/api/players", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, alias }),
-    });
+    try {
+      const res = await fetch("/api/players", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, alias }),
+      });
 
-    if (!res.ok) throw new Error("Failed to add player");
+      if (!res.ok) throw new Error("Failed to add player");
 
-    const newPlayer = await res.json();
+      const newPlayer = await res.json();
 
-    onSubmit({
-      id: newPlayer.id,
-      alias: newPlayer.codename,
-      team,
-      hardwareId: null,
-    });
+      onSubmit({
+        id: newPlayer.id,
+        alias: newPlayer.codename,
+        team,
+        hardwareId: null,
+      });
 
-    setId("");
-    setAlias("");
-    setShowAliasModal(false);
-  } catch (err) {
-    console.error(err);
-    alert("Could not save alias to database");
-  }
-};
+      setId("");
+      setAlias("");
+      setShowAliasModal(false);
+    } catch (err) {
+      console.error(err);
+      alert("Could not save alias to database");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4 border rounded-lg">
@@ -99,9 +99,9 @@ export default function PlayerEntryForm({ onSubmit }) {
 
       {/* Alias Modal */}
       {showAliasModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h3 className="text-lg font-bold mb-3">Enter Alias</h3>
+        <dialog id="alias_modal" className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-3">Enter Alias</h3>
             <input
               type="text"
               placeholder="Alias"
@@ -109,10 +109,10 @@ export default function PlayerEntryForm({ onSubmit }) {
               value={alias}
               onChange={(e) => setAlias(e.target.value)}
             />
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="modal-action">
               <button
                 onClick={() => setShowAliasModal(false)}
-                className="btn btn-secondary"
+                className="btn btn-ghost"
               >
                 Cancel
               </button>
@@ -124,8 +124,12 @@ export default function PlayerEntryForm({ onSubmit }) {
               </button>
             </div>
           </div>
-        </div>
+          <form method="dialog" className="modal-backdrop" onClick={() => setShowAliasModal(false)}>
+            <button>close</button>
+          </form>
+        </dialog>
       )}
+
     </div>
   )
 }

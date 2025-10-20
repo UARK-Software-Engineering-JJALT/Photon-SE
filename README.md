@@ -46,6 +46,21 @@ Else follow each individual dependency to develop on your own system.
 
 Once you've installed the development dependencies, you can follow instructions to start each component.
 
+
+### Start Dev Database using Docker
+
+```bash
+cd database
+docker compose up -d
+```
+
+Once the docker container is running, navigate to frontend and add a .env file containing the following
+
+Contents of /frontend/.env:
+```bash
+DB_USER="postgres"
+```
+
 ### Start Backend
 
 ```bash

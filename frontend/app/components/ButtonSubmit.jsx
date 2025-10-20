@@ -1,17 +1,17 @@
 "use client"
 import { useRouter } from "next/navigation"
 
-export default function ButtonSubmit() {
+export default function ButtonSubmit({ text, route }) {
   const router = useRouter()
 
   const handleClick = () => {
-    router.push("/action-screen")
+    router.push(route)
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 border rounded-lg">
+    <div className="flex flex-col gap-4 p-4">
       <button onClick={handleClick} className="btn btn-primary">
-        Submit
+        {text}
       </button>
     </div>
   )
