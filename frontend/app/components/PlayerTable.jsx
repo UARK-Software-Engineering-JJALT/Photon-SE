@@ -70,7 +70,7 @@ export default function PlayerTable({ team, players, onRemove, onEdit, socketRef
                                         {isEditing ? (
                                             <input
                                                 type="number"
-                                                className="input input-sm w-20"
+                                                className="input bg-slate-700 input-sm w-20"
                                                 value={hardwareInput}
                                                 onChange={(e) => setHardwareInput(e.target.value)}
                                             />
