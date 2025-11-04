@@ -24,11 +24,6 @@ except socket.error:
 network_handler = NetworkHandler(host=udp_network_ip)
 network_handler.start_receiver()
 
-# Forward asyncio event loop
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-network_handler.set_event_loop(loop)
-
 connected_clients = set()
 
 
@@ -63,6 +58,8 @@ async def handle_client(websocket):
         network_handler.remove_websocket_client(websocket)
 
 async def main():
+    network_handler.set_event_loop(asyncio.get_event_loop())
+    
     ws_server = await websockets.serve(handle_client, websocket_ip, 8765)
     print(f"WebSocket server running on ws://{websocket_ip}:8765 (accessible via ws://localhost:8765)")
     print(f"UDP network using interface: {udp_network_ip}")
@@ -70,7 +67,7 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        loop.run_until_complete(main())
+        asyncio.run(main())
     except KeyboardInterrupt:
         print("Shutting down...")
     finally:

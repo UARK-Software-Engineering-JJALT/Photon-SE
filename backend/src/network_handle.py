@@ -39,7 +39,7 @@ class NetworkHandler:
 
     def set_event_loop(self, loop):
         #Set asyncio event loop for websocket forwarding
-        self.event_loop = loop
+        self.loop = loop
 
     def add_websocket_client(self, websocket):
         self.connected_clients.add(websocket)
@@ -59,18 +59,25 @@ class NetworkHandler:
         while self.listening:
             try:
                 data, addr = self.udp_receive_sock.recvfrom(self.bufferSize)
-                message = data.decode("utf-8")
+                message = data.decode("utf-8").strip()
                 print(f"Received UDP from {addr}: {message}")
+
+                print(f"DEBUG: self.loop is {'SET' if self.loop else 'NONE'}")
+                print(f"DEBUG: connected_clients count: {len(self.connected_clients)}")
+                print(f"DEBUG: connected_clients: {self.connected_clients}")
+
+
+                self.broadcast_udp_message("ack")
 
                 # Forward to WebSocket clients
                 if self.loop and self.connected_clients:
+                    print("DEBUG: About to forward to websockets")  # ADD THIS
                     asyncio.run_coroutine_threadsafe(
                         self.forward_to_websockets(message, addr),
                         self.loop
-                    )
-
-                # Optionally put into internal queue
-                self.message_queue.put((message, addr))
+                )
+                else:
+                    print("DEBUG: NOT forwarding - loop or clients missing")  # ADD THIS
 
             except Exception as e:
                 if self.listening:
@@ -78,8 +85,23 @@ class NetworkHandler:
     
     async def forward_to_websockets(self, message, addr):
         if self.connected_clients:
-            data = json.dumps({"type": "udp_message", "payload": message, "from": str(addr)})
-            await asyncio.gather(*(client.send(data) for client in self.connected_clients))
+            data = json.dumps({
+                "type": "udp_message",
+                "payload": message,
+                "from": str(addr),
+                "timestamp": asyncio.get_event_loop().time()
+            })
+            disconnected = set()
+            for client in self.connected_clients:
+                try:
+                    print("Forwarding message to Websocket Clients")
+                    await client.send(data)
+                except Exception as e:
+                    print(f"Failed to send to client: {e}")
+                    disconnected.add(client)
+            
+            # Clean up disconnected clients
+            self.connected_clients -= disconnected
     
     def set_message_handler(self, handler):
         self.messageHandler = handler
@@ -107,24 +129,14 @@ class NetworkHandler:
         except Exception as e:
             print(f"Failed to send UDP message: {e}")
     
-
-    def send_message(self, message, host, port):
-        #send message upon broadcast
-        try:
-            if isinstance(message, str):
-                message = message.encode("utf-8")
-            
-            self.sendto(message, (host, port))
-            print(f"Message sent to {host} : {port}")
-        
-        except Exception as e:
-            print(f"Failed to send message to {host} : {port}")
-    
     def stop(self):
         self.listening = False
-        self.udp_receive_sock.close()
-        self.udp_broadcast_sock.close()
-        print("NetworkHandler stopped")
+        try:
+            self.udp_receive_sock.close()
+            self.udp_broadcast_sock.close()
+            print("NetworkHandler stopped")
+        except Exception as e:
+            print(f"Error stopping NetworkHandler: {e}")
 
 
 

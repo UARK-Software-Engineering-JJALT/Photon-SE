@@ -18,18 +18,22 @@ export default function ActionScreen() {
 
       ws.onopen = () => {
         setStatus("connected")
-        console.log("Connected to WebSocket")
+        console.log("WebSocket CONNECTED")
       }
 
       ws.onclose = () => {
         setStatus("disconnected")
-        console.log("Disconnected from WebSocket, retrying in 1s...")
-        setTimeout(connect, 1000) // auto-reconnect after 1s 
+        console.log("WebSocket DISCONNECTED, retrying in 1s...")
+        setTimeout(connect, 1000)
       }
 
       ws.onerror = (err) => {
         setStatus("error")
-        console.error("WebSocket error", err)
+        console.error("WebSocket ERROR:", err)
+      }
+
+      ws.onmessage = (event) => {
+        console.log("ActionScreen received message:", event.data)
       }
     }
 
@@ -40,22 +44,75 @@ export default function ActionScreen() {
       }
     }
   }, [])
+
+  const sendGameCommand = (command) => {
+    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+      console.error("WebSocket is not connected")
+      alert("WebSocket is not connected. Please wait for connection.")
+      return
+    }
+
+    try {
+      const message = JSON.stringify({
+        type: "player_entry",
+        payload: command
+      })
+      socketRef.current.send(message)
+      console.log(`Sent game command: ${command}`)
+    } catch (error) {
+      console.error("Error sending game command:", error)
+      alert("Failed to send command")
+    }
+  }
+
+  const handleManualStart = () => {
+    sendGameCommand("202")
+  }
+
+  const handleManualStop = () => {
+    sendGameCommand("221")
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
-      <h1 className="text-4xl font-bold mb-4">Action Screen</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
+      <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
+
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
-      <div className="flex">
+
+      <div className="flex gap-6 mb-8">
         <TeamScoreWindow teamColor="red" />
         <TeamScoreWindow teamColor="green" />
       </div>
-      <div>
-        <ActionsTerminal socketRef={socketRef} />
+
+      <div className="w-full max-w-4xl mb-6">
+        <ActionsTerminal socketRef={socketRef} isConnected={status === "connected"} />
       </div>
 
+      <div className="flex gap-4">
+        <button
+          className="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={handleManualStart}
+          disabled={status !== "connected"}
+        >
+          Manual Start (202)
+        </button>
 
+        <button
+          className="px-6 py-3 rounded-lg font-semibold bg-red-600 hover:bg-red-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={handleManualStop}
+          disabled={status !== "connected"}
+        >
+          Manual Stop (221)
+        </button>
+      </div>
 
+      {status !== "connected" && (
+        <p className="mt-4 text-yellow-500 text-sm">
+          Waiting for WebSocket connection...
+        </p>
+      )}
     </div>
   )
 }
