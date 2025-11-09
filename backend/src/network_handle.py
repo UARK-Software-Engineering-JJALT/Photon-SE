@@ -60,8 +60,6 @@ class NetworkHandler:
             try:
                 data, addr = self.udp_receive_sock.recvfrom(self.bufferSize)
                 message = data.decode("utf-8").strip()
-
-                self.broadcast_udp_message(message.split(":")[-1])
                 
                 print(f"Received UDP from {addr}: {message}")
 
