@@ -23,7 +23,7 @@ export default function Countdown({ text }) {
         color: "#ffffffff"
     }}>
         <h1>Setup</h1>
-        {CountdownTimer({matchTimeMinutes : 0, matchTimeSeconds : 30, gameStarted : true, func : handleFinish, whenFinished : null})}
+        {CountdownTimer({matchTimeMinutes : 0, matchTimeSeconds : 30, gameStarted : true, func : handleFinish, whenFinished : (() => {}), minimized: false})}
     </div>
   )
 }
