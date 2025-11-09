@@ -65,22 +65,12 @@ class NetworkHandler:
                 
                 print(f"Received UDP from {addr}: {message}")
 
-                print(f"DEBUG: self.loop is {'SET' if self.loop else 'NONE'}")
-                print(f"DEBUG: connected_clients count: {len(self.connected_clients)}")
-                print(f"DEBUG: connected_clients: {self.connected_clients}")
-
-
-                self.broadcast_udp_message("ack")
-
                 # Forward to WebSocket clients
                 if self.loop and self.connected_clients:
-                    print("DEBUG: About to forward to websockets")  # ADD THIS
                     asyncio.run_coroutine_threadsafe(
                         self.forward_to_websockets(message, addr),
                         self.loop
                 )
-                else:
-                    print("DEBUG: NOT forwarding - loop or clients missing")  # ADD THIS
 
             except Exception as e:
                 if self.listening:
