@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 //Autoplay audio rules may cause undesired behavior
 //Tried to handle in a way that wouldn't require user interaction
 
-export default function RdmMusicSelector(){
+export default function RandomMusicSelector(){
     const [currentTrack, setCurrentTrack] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [needsUserInteraction, setNeedsUserInteraction] = useState(false);

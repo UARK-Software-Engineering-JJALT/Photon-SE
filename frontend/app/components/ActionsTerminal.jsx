@@ -48,7 +48,7 @@ export default function ActionsTerminal({ socketRef, isConnected }) {
     }
 
     ws.addEventListener("message", handleMessage)
-
+    sendGameCommand("202", socketRef)
     return () => {
       ws.removeEventListener("message", handleMessage)
     }

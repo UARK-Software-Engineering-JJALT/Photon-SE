@@ -5,6 +5,7 @@ import WebsocketStatus from "../components/WebsocketStatus"
 import TeamScoreWindow from "../components/TeamScoreWindow"
 import ActionsTerminal from "../components/ActionsTerminal"
 import CountdownTimer from "../components/CountdownTimer"
+import RandomMusicSelector from "../components/RandomMusicSelector"
 
 export const sendGameCommand = (command, socketRef) => {
   if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
@@ -39,7 +40,7 @@ export default function ActionScreen() {
     const connect = () => {
       setStatus("connecting")
       ws = new WebSocket("ws://localhost:8765")
-      socketRef.current = ws
+      socketRef.current = ws      
 
       ws.onopen = () => {
         setStatus("connected")
@@ -77,6 +78,7 @@ export default function ActionScreen() {
   const handleManualStop = (socketRef) => {
     setReturnButtonVisibility(true)
     sendGameCommand("221", socketRef)
+    sendGameCommand("221", socketRef)
   }
 
   const handleNavigate = () => {
@@ -86,7 +88,7 @@ export default function ActionScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
-        {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: (() => {setReturnButtonVisibility(true)}), whenFinished: (() => {setReturnButtonVisibility(true)}), minimized: true})}
+        {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
@@ -104,11 +106,15 @@ export default function ActionScreen() {
         Return To Entry Screen!
       </button> }
 
+      
+
       <div className="w-full max-w-4xl mb-6">
         <ActionsTerminal socketRef={socketRef} isConnected={status === "connected"} />
       </div>
 
-      <div className="flex gap-4">
+      <RandomMusicSelector />
+
+      {/* <div className="flex gap-4">
         <button
           className="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
           onClick={_ => handleManualStart(socketRef)}
@@ -124,7 +130,7 @@ export default function ActionScreen() {
         >
           Manual Stop (221)
         </button>
-      </div>
+      </div> */}
 
       {status !== "connected" && (
         <p className="mt-4 text-yellow-500 text-sm">
