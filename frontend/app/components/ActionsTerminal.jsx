@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
+import { sendGameCommand } from "../action-screen/page.js"
 
 export default function ActionsTerminal({ socketRef, isConnected }) {
   const terminalRef = useRef(null)
@@ -25,6 +26,10 @@ export default function ActionsTerminal({ socketRef, isConnected }) {
           if (payload.includes(":")) {
             const [shooter, target] = payload.split(":")
             actionText = `${shooter} HIT ${target}`
+            sendGameCommand(target, socketRef)
+            if(target % 2 == shooter % 2) {
+              sendGameCommand(shooter, socketRef)
+            }
           }
           else {
             actionText = payload

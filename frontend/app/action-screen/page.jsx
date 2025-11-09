@@ -4,6 +4,26 @@ import WebsocketStatus from "../components/WebsocketStatus"
 import TeamScoreWindow from "../components/TeamScoreWindow"
 import ActionsTerminal from "../components/ActionsTerminal"
 
+export const sendGameCommand = (command, socketRef) => {
+  if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+    console.error("WebSocket is not connected")
+    alert("WebSocket is not connected. Please wait for connection.")
+    return
+  }
+
+  try {
+    const message = JSON.stringify({
+      type: "player_entry",
+      payload: command
+    })
+    socketRef.current.send(message)
+    console.log(`Sent game command: ${command}`)
+  } catch (error) {
+    console.error("Error sending game command:", error)
+    alert("Failed to send command")
+  }
+}
+
 export default function ActionScreen() {
   const socketRef = useRef(null)
   const [status, setStatus] = useState("connecting")
@@ -45,32 +65,12 @@ export default function ActionScreen() {
     }
   }, [])
 
-  const sendGameCommand = (command) => {
-    if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
-      console.error("WebSocket is not connected")
-      alert("WebSocket is not connected. Please wait for connection.")
-      return
-    }
-
-    try {
-      const message = JSON.stringify({
-        type: "player_entry",
-        payload: command
-      })
-      socketRef.current.send(message)
-      console.log(`Sent game command: ${command}`)
-    } catch (error) {
-      console.error("Error sending game command:", error)
-      alert("Failed to send command")
-    }
+  const handleManualStart = (socketRef) => {
+  sendGameCommand("202", socketRef)
   }
-
-  const handleManualStart = () => {
-    sendGameCommand("202")
-  }
-
-  const handleManualStop = () => {
-    sendGameCommand("221")
+  
+  const handleManualStop = (socketRef) => {
+    sendGameCommand("221", socketRef)
   }
 
   return (
@@ -93,7 +93,7 @@ export default function ActionScreen() {
       <div className="flex gap-4">
         <button
           className="px-6 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={handleManualStart}
+          onClick={_ => handleManualStart(socketRef)}
           disabled={status !== "connected"}
         >
           Manual Start (202)
@@ -101,7 +101,7 @@ export default function ActionScreen() {
 
         <button
           className="px-6 py-3 rounded-lg font-semibold bg-red-600 hover:bg-red-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={handleManualStop}
+          onClick={_ => handleManualStop(socketRef)}
           disabled={status !== "connected"}
         >
           Manual Stop (221)
