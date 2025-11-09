@@ -1,8 +1,10 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import WebsocketStatus from "../components/WebsocketStatus"
 import TeamScoreWindow from "../components/TeamScoreWindow"
 import ActionsTerminal from "../components/ActionsTerminal"
+import CountdownTimer from "../components/CountdownTimer"
 
 export const sendGameCommand = (command, socketRef) => {
   if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
@@ -26,7 +28,10 @@ export const sendGameCommand = (command, socketRef) => {
 
 export default function ActionScreen() {
   const socketRef = useRef(null)
+  const [returnButtonVisibility, setReturnButtonVisibility] = useState(false)
   const [status, setStatus] = useState("connecting")
+
+  const router = useRouter();
 
   useEffect(() => {
     let ws
@@ -66,17 +71,22 @@ export default function ActionScreen() {
   }, [])
 
   const handleManualStart = (socketRef) => {
-  sendGameCommand("202", socketRef)
+    sendGameCommand("202", socketRef)
   }
-  
+
   const handleManualStop = (socketRef) => {
+    setReturnButtonVisibility(true)
     sendGameCommand("221", socketRef)
   }
+
+  const handleNavigate = () => {
+    router.push("/")
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
-
+        {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: (() => {setReturnButtonVisibility(true)}), whenFinished: (() => {setReturnButtonVisibility(true)}), minimized: true})}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
@@ -85,6 +95,14 @@ export default function ActionScreen() {
         <TeamScoreWindow teamColor="red" />
         <TeamScoreWindow teamColor="green" />
       </div>
+
+      { returnButtonVisibility && <button
+        className="px-6 py-3 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={handleNavigate}
+        disabled={status !== "connected"}
+      >
+        Return To Entry Screen!
+      </button> }
 
       <div className="w-full max-w-4xl mb-6">
         <ActionsTerminal socketRef={socketRef} isConnected={status === "connected"} />
