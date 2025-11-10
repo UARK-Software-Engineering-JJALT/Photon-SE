@@ -6,6 +6,7 @@ import TeamScoreWindow from "../components/TeamScoreWindow"
 import ActionsTerminal from "../components/ActionsTerminal"
 import CountdownTimer from "../components/CountdownTimer"
 import RandomMusicSelector from "../components/RandomMusicSelector"
+import ScoreKeeping from "../components/ScoreKeeping.jsx"
 
 export const sendGameCommand = (command, socketRef) => {
   if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
@@ -88,16 +89,15 @@ export default function ActionScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
+      <ScoreKeeping socketRef={socketRef} />
         {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
-
       <div className="flex gap-6 mb-8">
         <TeamScoreWindow teamColor="red" />
         <TeamScoreWindow teamColor="green" />
       </div>
-
       { returnButtonVisibility && <button
         className="px-6 py-3 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={handleNavigate}
