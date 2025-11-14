@@ -1,11 +1,12 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
 import WebsocketStatus from "../components/WebsocketStatus"
 import TeamScoreWindow from "../components/TeamScoreWindow"
 import ActionsTerminal from "../components/ActionsTerminal"
 import CountdownTimer from "../components/CountdownTimer"
 import RandomMusicSelector from "../components/RandomMusicSelector"
+import Link from "next/link"
+
 
 export const sendGameCommand = (command, socketRef) => {
   if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
@@ -32,8 +33,6 @@ export default function ActionScreen() {
   const [latestMessage, setLatestMessage] = useState(null);
   const [returnButtonVisibility, setReturnButtonVisibility] = useState(false)
   const [status, setStatus] = useState("connecting")
-
-  const router = useRouter();
 
   useEffect(() => {
     const connect = () => {
@@ -79,17 +78,12 @@ export default function ActionScreen() {
     setReturnButtonVisibility(true)
     sendGameCommand("221", socketRef)
     sendGameCommand("221", socketRef)
-    localStorage.removeItem("teamPlayers");
   }
-
-  const handleNavigate = () => {
-    router.push("/")
-  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
-        {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
+        {CountdownTimer({matchTimeMinutes : 0, matchTimeSeconds : 15, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
@@ -97,13 +91,13 @@ export default function ActionScreen() {
         <TeamScoreWindow teamColor="red" socketRef={socketRef} latestMessage={latestMessage} />
         <TeamScoreWindow teamColor="green" socketRef={socketRef} latestMessage={latestMessage} />
       </div>
-      { returnButtonVisibility && <button
+      { returnButtonVisibility && <Link
+        href="/"
         className="px-6 py-3 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-        onClick={handleNavigate}
         disabled={status !== "connected"}
       >
         Return To Entry Screen!
-      </button> }
+      </Link> }
 
       
 
