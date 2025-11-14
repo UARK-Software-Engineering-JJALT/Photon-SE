@@ -6,7 +6,6 @@ import TeamScoreWindow from "../components/TeamScoreWindow"
 import ActionsTerminal from "../components/ActionsTerminal"
 import CountdownTimer from "../components/CountdownTimer"
 import RandomMusicSelector from "../components/RandomMusicSelector"
-import ScoreKeeping from "../components/ScoreKeeping.jsx"
 
 export const sendGameCommand = (command, socketRef) => {
   if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
@@ -30,18 +29,17 @@ export const sendGameCommand = (command, socketRef) => {
 
 export default function ActionScreen() {
   const socketRef = useRef(null)
+  const [latestMessage, setLatestMessage] = useState(null);
   const [returnButtonVisibility, setReturnButtonVisibility] = useState(false)
   const [status, setStatus] = useState("connecting")
 
   const router = useRouter();
 
   useEffect(() => {
-    let ws
-
     const connect = () => {
       setStatus("connecting")
-      ws = new WebSocket("ws://localhost:8765")
-      socketRef.current = ws      
+      const ws = new WebSocket("ws://localhost:8765")
+      socketRef.current = ws
 
       ws.onopen = () => {
         setStatus("connected")
@@ -56,21 +54,22 @@ export default function ActionScreen() {
 
       ws.onerror = (err) => {
         setStatus("error")
-        console.error("WebSocket ERROR:", err)
       }
 
       ws.onmessage = (event) => {
-        console.log("ActionScreen received message:", event.data)
+        setLatestMessage(event.data)
       }
     }
 
     connect()
+
     return () => {
       if (socketRef.current) {
         socketRef.current.close()
       }
     }
   }, [])
+
 
   const handleManualStart = (socketRef) => {
     sendGameCommand("202", socketRef)
@@ -80,6 +79,7 @@ export default function ActionScreen() {
     setReturnButtonVisibility(true)
     sendGameCommand("221", socketRef)
     sendGameCommand("221", socketRef)
+    localStorage.removeItem("teamPlayers");
   }
 
   const handleNavigate = () => {
@@ -89,14 +89,13 @@ export default function ActionScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
-      <ScoreKeeping socketRef={socketRef} />
         {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
       <div className="flex gap-6 mb-8">
-        <TeamScoreWindow teamColor="red" />
-        <TeamScoreWindow teamColor="green" />
+        <TeamScoreWindow teamColor="red" socketRef={socketRef} latestMessage={latestMessage} />
+        <TeamScoreWindow teamColor="green" socketRef={socketRef} latestMessage={latestMessage} />
       </div>
       { returnButtonVisibility && <button
         className="px-6 py-3 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
