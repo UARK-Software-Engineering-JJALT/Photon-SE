@@ -30,9 +30,19 @@ export const sendGameCommand = (command, socketRef) => {
 
 export default function ActionScreen() {
   const socketRef = useRef(null)
+  const [redScore, setRedScore] = useState(0);
+  const [greenScore, setGreenScore] = useState(0);
   const [latestMessage, setLatestMessage] = useState(null);
   const [returnButtonVisibility, setReturnButtonVisibility] = useState(false)
   const [status, setStatus] = useState("connecting")
+
+  const handleScoreUpdate = (teamColor, score) => {
+    if (teamColor === "red") {
+      setRedScore(score);
+    } else if (teamColor === "green") {
+      setGreenScore(score)
+    }
+  }
 
   useEffect(() => {
     const connect = () => {
@@ -83,13 +93,13 @@ export default function ActionScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
-        {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
+        {CountdownTimer({matchTimeMinutes : 0, matchTimeSeconds : 45, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
       <div className="flex gap-6 mb-8">
-        <TeamScoreWindow teamColor="red" socketRef={socketRef} latestMessage={latestMessage} />
-        <TeamScoreWindow teamColor="green" socketRef={socketRef} latestMessage={latestMessage} />
+        <TeamScoreWindow teamColor="red" socketRef={socketRef} latestMessage={latestMessage} otherTeamScore={greenScore} onScoreUpdate={handleScoreUpdate}/>
+        <TeamScoreWindow teamColor="green" socketRef={socketRef} latestMessage={latestMessage} otherTeamScore={redScore} onScoreUpdate={handleScoreUpdate}/>
       </div>
       { returnButtonVisibility && <Link
         href="/"

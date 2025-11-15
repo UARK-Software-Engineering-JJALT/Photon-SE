@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-export default function TeamScoreWindow({ teamColor, latestMessage }) {
+export default function TeamScoreWindow({ teamColor, latestMessage, otherTeamScore, onScoreUpdate }) {
     const [players, setPlayers] = useState([]);
     const [teamScore, setTeamScore] = useState(0);
+
+    let redBaseScored = false;
+    let greenBaseScored = false;
     
     //team consts
     const isRed = (hardwareId) => parseInt(hardwareId) % 2 === 0;
@@ -23,6 +26,13 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
                   teamPlayers = allPlayers.filter((player) => isGreen(player.hardwareId));
                 }
 
+                // Sort players by score (highest first)
+                teamPlayers.sort((a, b) => {
+                  const scoreA = a.score || 0;
+                  const scoreB = b.score || 0;
+                  return scoreB - scoreA; // descending order
+                });
+
                 setPlayers(teamPlayers);
 
                 let totalScore = 0;
@@ -31,11 +41,16 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
                 }
 
                 setTeamScore(totalScore);
+                
+                // Notify parent of score change
+                if (onScoreUpdate) {
+                  onScoreUpdate(teamColor, totalScore);
+                }
             } catch (err) {
                 console.error("Error parsing teamPlayers from localStorage:", err);
             }
         }
-    }, [teamColor]);
+    }, [teamColor, onScoreUpdate]);
 
     //handle incoming messages/game state updates
     useEffect(() => {
@@ -45,16 +60,11 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
         if (data.type !== "udp_message") return;
 
         const parts = data.payload.split(":");
-        let attacker, victim, eventCode;
-
-        //"2:3"
-        if (parts.length === 2) {
-          [attacker, victim] = parts;
-          eventCode = null;
-        //2:3:43
-        } else if (parts.length === 3) {
-          [attacker, victim, eventCode] = parts;
-        }
+        if (parts.length !== 2) return;
+        
+        const [attacker, victim] = parts;
+        
+        console.log("Processing message:", attacker, ":", victim);
 
         const storedPlayers = localStorage.getItem("teamPlayers");
         let allPlayers = storedPlayers ? JSON.parse(storedPlayers) : [];
@@ -64,27 +74,38 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
             id,
             alias: `Player ${id}`,
             score: 0,
+            hardwareId: id,
           }));
         }
 
         const updatedPlayers = allPlayers.map((player) => {
           let score = player.score || 0;
 
-          if (parseInt(player.id) === parseInt(attacker)) {
-            if (eventCode === "53" && isGreen(attacker)) {
+          if (parseInt(player.hardwareId || player.id) === parseInt(attacker)) {
+          
+            // 43 = green base, 53 = red base
+            if (victim === "53" && isGreen(player.hardwareId || player.id && !redBaseScored)) {
+              console.log("Green team player hit red base!");
+              // Green team player hit red base
               score += 100;
+              redBaseScored = true;
               return { ...player, score, baseHit: true };
-            } else if (eventCode === "43" && isRed(attacker)) {
+            } else if (victim === "43" && isRed(player.hardwareId || player.id && !greenBaseScored)) {
+              console.log("Red team player hit green base!");
+              // Red team player hit green base
               score += 100;
+              greenBaseScored = true;
               return { ...player, score, baseHit: true }; 
             } else {
-              // normal hit
+              console.log("Normal hit");
+              // Normal hit on another player
               score += 10;
               return { ...player, score, baseHit: player.baseHit }; 
             }
           }
 
-          if (parseInt(player.id) === parseInt(victim) 
+          // Friendly Fire
+          if (parseInt(player.hardwareId || player.id) === parseInt(victim) 
             && parseInt(attacker) !== parseInt(victim) 
             && isRed(attacker) === isRed(victim)
           ) {
@@ -106,10 +127,7 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
         teamPlayers.sort((a, b) => {
           const scoreA = a.score || 0;
           const scoreB = b.score || 0;
-
-          if (scoreA < scoreB) return 1;   // b comes before a
-          if (scoreA > scoreB) return -1;  // a comes before b
-          return 0;                        // equal scores
+          return scoreB - scoreA; 
         });
 
         setPlayers(teamPlayers);
@@ -119,10 +137,14 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
           0
         );
         setTeamScore(totalScore);
+        
+        if (onScoreUpdate) {
+          onScoreUpdate(teamColor, totalScore);
+        }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }
-    }, [latestMessage]);
+    }, [latestMessage, teamColor, onScoreUpdate]);
 
     const teamText =
         teamColor === "red"
@@ -130,6 +152,8 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
             : teamColor === "green"
                 ? "text-green-500"
                 : "text-gray-500";
+
+    const isWinning = teamScore > otherTeamScore;
 
     return (
         <div
@@ -163,7 +187,9 @@ export default function TeamScoreWindow({ teamColor, latestMessage }) {
 
             <div className="flex justify-between items-center text-lg font-bold text-white">
                 <span>Total Score</span>
-                <span className="text-amber-500">{teamScore}</span>
+                <span className={`text-amber-500 ${isWinning ? 'animate-pulse' : ''}`}>
+                    {teamScore}
+                </span>
             </div>
         </div>
     );
