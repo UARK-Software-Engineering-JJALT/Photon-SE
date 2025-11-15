@@ -83,7 +83,7 @@ export default function ActionScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
-        {CountdownTimer({matchTimeMinutes : 0, matchTimeSeconds : 15, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
+        {CountdownTimer({matchTimeMinutes : 6, matchTimeSeconds : 0, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
