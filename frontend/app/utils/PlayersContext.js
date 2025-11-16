@@ -3,7 +3,7 @@ import { useContext, createContext, useState, useEffect } from "react";
 const PlayersContext = createContext(undefined);
 
 export const PlayersProvider = ({children}) => {
-    const [players, setPlayers] = useState(localStorage.getItem("teamPlayers")); // all players in session
+    const [players, setPlayers] = useState(JSON.parse(localStorage.getItem("teamPlayers"))); // all players in session
 
     useEffect(() => {
         localStorage.setItem("teamPlayers", JSON.stringify(players))
