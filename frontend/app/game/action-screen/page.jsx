@@ -1,11 +1,10 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
-import WebsocketStatus from "../components/WebsocketStatus"
-import TeamScoreWindow from "../components/TeamScoreWindow"
-import ActionsTerminal from "../components/ActionsTerminal"
-import CountdownTimer from "../components/CountdownTimer"
-import RandomMusicSelector from "../components/RandomMusicSelector"
-import Link from "next/link"
+import WebsocketStatus from "../../components/WebsocketStatus"
+import TeamScoreWindow from "../../components/TeamScoreWindow"
+import ActionsTerminal from "../../components/ActionsTerminal"
+import CountdownTimer from "../../components/CountdownTimer"
+import { useRouter } from "next/navigation"
 
 
 export const sendGameCommand = (command, socketRef) => {
@@ -29,6 +28,7 @@ export const sendGameCommand = (command, socketRef) => {
 }
 
 export default function ActionScreen() {
+  const router = useRouter()
   const socketRef = useRef(null)
   const [redScore, setRedScore] = useState(0);
   const [greenScore, setGreenScore] = useState(0);
@@ -42,6 +42,10 @@ export default function ActionScreen() {
     } else if (teamColor === "green") {
       setGreenScore(score)
     }
+  }
+
+  const handleReturnToEntryScreen = () => {
+    router.push("/")
   }
 
   useEffect(() => {
@@ -93,29 +97,28 @@ export default function ActionScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-8">
       <h1 className="text-4xl font-bold mb-8">Action Screen</h1>
-        {CountdownTimer({matchTimeMinutes : 0, matchTimeSeconds : 45, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true})}
+      {CountdownTimer({ matchTimeMinutes: 0, matchTimeSeconds: 5, gameStarted: true, func: handleManualStop, whenFinished: socketRef, minimized: true })}
       <div className="absolute top-4 right-4">
         <WebsocketStatus status={status} />
       </div>
       <div className="flex gap-6 mb-8">
-        <TeamScoreWindow teamColor="red" socketRef={socketRef} latestMessage={latestMessage} otherTeamScore={greenScore} onScoreUpdate={handleScoreUpdate}/>
-        <TeamScoreWindow teamColor="green" socketRef={socketRef} latestMessage={latestMessage} otherTeamScore={redScore} onScoreUpdate={handleScoreUpdate}/>
+        <TeamScoreWindow teamColor="red" socketRef={socketRef} latestMessage={latestMessage} otherTeamScore={greenScore} onScoreUpdate={handleScoreUpdate} />
+        <TeamScoreWindow teamColor="green" socketRef={socketRef} latestMessage={latestMessage} otherTeamScore={redScore} onScoreUpdate={handleScoreUpdate} />
       </div>
-      { returnButtonVisibility && <Link
+      {returnButtonVisibility && <button
         href="/"
         className="px-6 py-3 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={status !== "connected"}
+        onClick={handleReturnToEntryScreen}
       >
         Return To Entry Screen!
-      </Link> }
+      </button>}
 
-      
+
 
       <div className="w-full max-w-4xl mb-6">
         <ActionsTerminal socketRef={socketRef} isConnected={status === "connected"} />
       </div>
-
-      <RandomMusicSelector />
 
       {/* <div className="flex gap-4">
         <button

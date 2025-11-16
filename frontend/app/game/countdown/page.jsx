@@ -1,5 +1,5 @@
 "use client"
-import CountdownTimer from "../components/CountdownTimer.jsx"
+import CountdownTimer from "../../components/CountdownTimer.jsx"
 import { useRouter } from "next/navigation"
 
 export default function Countdown({ text }) {
@@ -8,7 +8,7 @@ export default function Countdown({ text }) {
   //Causes error on Dev builds for reasons I have yet to understand
   //but otherwise does the job it sets out to do
   const handleFinish = (_) => {
-    router.push("/action-screen")
+    router.push("/game/action-screen")
   };
 
   return (

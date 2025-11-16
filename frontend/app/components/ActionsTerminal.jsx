@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { sendGameCommand } from "../action-screen/page.jsx"
+import { sendGameCommand } from "../game/action-screen/page.jsx"
 
 export default function ActionsTerminal({ socketRef, isConnected }) {
   const terminalRef = useRef(null)

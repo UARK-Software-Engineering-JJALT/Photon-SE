@@ -19,7 +19,7 @@ export default function SplashScreen() {
   return (
     <div
   className="fixed z-50 inset-0 flex items-center justify-center bg-black bg-center bg-no-repeat bg-contain"
-  style={{ backgroundImage: "url('logo.jpg')" }}
+  style={{ backgroundImage: "url('/logo.jpg')" }}
 >
 </div>
 
