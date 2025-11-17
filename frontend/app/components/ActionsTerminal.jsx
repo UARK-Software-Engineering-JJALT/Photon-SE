@@ -1,28 +1,91 @@
 "use client"
-import { useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
+import { sendGameCommand } from "../game/action-screen/page.jsx"
 
-export default function ActionsTerminal({ socketRef }) {
+export default function ActionsTerminal({ socketRef, isConnected }) {
   const terminalRef = useRef(null)
+  const [actions, setActions] = useState([])
+
+  useEffect(() => {
+    
+    if (!socketRef?.current || !isConnected) {
+      return
+    }
+
+    const ws = socketRef.current
+
+    const handleMessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+
+        if (data.type === "udp_message") {
+          const payload = data.payload
+
+          let actionText = ""
+
+          if (payload.includes(":")) {
+            const [shooter, target] = payload.split(":")
+            actionText = `${shooter} HIT ${target}`
+            sendGameCommand(target, socketRef)
+            if(target % 2 == shooter % 2) {
+              sendGameCommand(shooter, socketRef)
+            }
+          }
+          else {
+            actionText = payload
+          }
+
+          setActions(prev => {
+            const newActions = [...prev, { text: actionText, id: Date.now() }]
+            return newActions
+          })
+        } else {
+          console.log("Non-UDP message type:", data.type)
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error)
+      }
+    }
+
+    ws.addEventListener("message", handleMessage)
+    sendGameCommand("202", socketRef)
+    return () => {
+      ws.removeEventListener("message", handleMessage)
+    }
+  }, [socketRef, isConnected])
 
   useEffect(() => {
     const terminal = terminalRef.current
     if (terminal) {
       terminal.scrollTop = terminal.scrollHeight
     }
-  }, [])
+  }, [actions])
 
   return (
-    <div
-      ref={terminalRef}
-      className="border-2 rounded-2xl border-white w-2xl h-40 overflow-auto"
-    >
-      <p className="ml-4 mt-4">1 HIT 2</p>
-      <p className="ml-4 mt-4">1 HIT 3</p>
-      <p className="ml-4 mt-4">2 HIT 1</p>
-      <p className="ml-4 mt-4">3 HIT 5</p>
-      <p className="ml-4 mt-4">3 HIT 7</p>
-      <p className="ml-4 mt-4">4 HIT 5</p>
-      <p className="ml-4 mt-4">3 HIT 4</p>
+    <div className="flex flex-col">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-white font-semibold">Game Actions</h3>
+        <button
+          onClick={() => setActions([])}
+          className="text-xs text-gray-400 hover:text-white transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+      <div
+        ref={terminalRef}
+        className="border-2 rounded-2xl border-white w-full h-40 overflow-auto bg-black/20 p-4 font-mono text-sm"
+      >
+        {actions.length === 0 ? (
+          <p className="text-gray-500 italic">Waiting for game actions...</p>
+        ) : (
+          actions.map((action) => (
+            <p key={action.id} className="text-white mb-2">
+              {action.text}
+            </p>
+          ))
+        )}
+      </div>
     </div>
   )
 }

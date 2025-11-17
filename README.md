@@ -20,7 +20,7 @@ poetry run python src/main.py
 ```bash
 pnpm run dev
 ```
-5. Open a browser window to https://localhost:3000
+5. Open a browser window to http://localhost:3000
 
 ### Shutdown
 
