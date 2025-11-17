@@ -1,59 +1,73 @@
 "use client"
-import React, { useState, useEffect } from 'react';
-//Autoplay audio rules may cause undesired behavior
-//Tried to handle in a way that wouldn't require user interaction
+import React, { useState, useEffect, useRef } from 'react';
 
-export default function RandomMusicSelector(){
+let globalAudioPlaying = false;
+
+export default function RandomMusicSelector() {
     const [currentTrack, setCurrentTrack] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
-    const [audioEl, setAudioEl] = useState(null);
-    
+    const audioRef = useRef(null);
+    const hasInitialized = useRef(false);
+
+    useEffect(() => {
+        return () => {
+            // Cleanup audio on unmount
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+                audioRef.current.src = '';
+                audioRef.current = null;
+            }
+            globalAudioPlaying = false; // Reset global flag
+        };
+    }, []);
+
     const getRandomIntInclusive = (min, max) => {
-         min = Math.ceil(min);
-         max = Math.floor(max);
+        min = Math.ceil(min);
+        max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
     useEffect(() => {
-        let audioElement = null;
+        // Prevent double initialization from Strict Mode
+        if (hasInitialized.current || globalAudioPlaying) return;
+        hasInitialized.current = true;
+        globalAudioPlaying = true;
 
         const playTrack = async () => {
-            // Don't start a new track if one is already playing
             if (isPlaying) return;
-            
+
             try {
                 setIsPlaying(true);
-                const num = getRandomIntInclusive(1,8);
+                const num = getRandomIntInclusive(1, 8);
                 setCurrentTrack(num);
-                
+
                 const encodedPath = encodeURI(`/Photon Playlist/photon_tracks_Track0${num}.mp3`);
-                
+
                 // Verify the file exists
                 const response = await fetch(encodedPath, { method: 'HEAD' });
                 if (!response.ok) {
                     throw new Error(`Audio file not found: ${encodedPath}`);
                 }
 
-                audioElement = new Audio();
-                audioElement.src = encodedPath;
-                
-                // Try to start playback immediately without muting first
+                audioRef.current = new Audio();
+                audioRef.current.src = encodedPath;
+
                 try {
-                    await audioElement.play();
+                    await audioRef.current.play();
                 } catch (playError) {
                     if (playError.name === 'NotAllowedError') {
-                        // If autoplay is blocked, try with muting
-                        audioElement.muted = true;
-                        await audioElement.play();
-                        // Gradually unmute over 100ms to avoid sudden playback
-                        audioElement.volume = 0;
+                        audioRef.current.muted = true;
+                        await audioRef.current.play();
+                        audioRef.current.volume = 0;
                         const fadeIn = setInterval(() => {
-                            if (audioElement.volume < 1) {
-                                audioElement.volume = Math.min(1, audioElement.volume + 0.1);
+                            if (audioRef.current && audioRef.current.volume < 1) {
+                                audioRef.current.volume = Math.min(1, audioRef.current.volume + 0.1);
                             } else {
                                 clearInterval(fadeIn);
-                                audioElement.muted = false;
+                                if (audioRef.current) {
+                                    audioRef.current.muted = false;
+                                }
                             }
                         }, 50);
                     } else {
@@ -61,32 +75,33 @@ export default function RandomMusicSelector(){
                     }
                 }
 
-                audioElement.addEventListener('ended', () => {
-                    audioElement.pause();
-                    audioElement.currentTime = 0;
+                audioRef.current.addEventListener('ended', () => {
+                    if (audioRef.current) {
+                        audioRef.current.pause();
+                        audioRef.current.currentTime = 0;
+                    }
                     setCurrentTrack(null);
                     setIsPlaying(false);
+                    globalAudioPlaying = false;
                 });
 
             } catch (error) {
                 console.error('Error playing audio:', error);
                 setCurrentTrack(null);
                 setIsPlaying(false);
+                globalAudioPlaying = false;
             }
         };
 
         playTrack();
 
-        // Cleanup
         return () => {
-            if (audioElement) {
-                audioElement.pause();
-                audioElement.src = '';
-                audioElement.remove();
-                setIsPlaying(false);
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
             }
         };
-    }, [])
+    }, []);
 
     return (
         <div style={{ position: 'relative', minHeight: '100vh' }}>

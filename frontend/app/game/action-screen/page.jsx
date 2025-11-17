@@ -45,13 +45,14 @@ export default function ActionScreen() {
   }
 
   const handleReturnToEntryScreen = () => {
-    currPlayersArray = JSON.parse(localStorage.getItem("teamPlayers"))
-    let resetPlayersScore = JSON.parse(currPlayersArray).map((player) => {
-      player.score = 0;
-      player.baseHit = false;
+    let currPlayersArray = JSON.parse(localStorage.getItem("teamPlayers"))
+    currPlayersArray.forEach((player) => {
+      return {
+        ...player,
+        score: 0,
+        baseHit: false
+      };
     });
-    localStorage.setItem("teamPlayers", JSON.stringify(resetPlayersScore));
-    
     router.push("/")
   }
 
