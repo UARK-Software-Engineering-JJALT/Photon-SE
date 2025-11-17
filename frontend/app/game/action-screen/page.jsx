@@ -45,6 +45,13 @@ export default function ActionScreen() {
   }
 
   const handleReturnToEntryScreen = () => {
+    currPlayersArray = JSON.parse(localStorage.getItem("teamPlayers"))
+    let resetPlayersScore = JSON.parse(currPlayersArray).map((player) => {
+      player.score = 0;
+      player.baseHit = false;
+    });
+    localStorage.setItem("teamPlayers", JSON.stringify(resetPlayersScore));
+    
     router.push("/")
   }
 
