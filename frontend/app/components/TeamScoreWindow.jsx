@@ -10,8 +10,8 @@ export default function TeamScoreWindow({ teamColor, latestMessage, otherTeamSco
     let greenBaseScored = false;
     
     //team consts
-    const isRed = (hardwareId) => parseInt(hardwareId) % 2 === 0;
-    const isGreen = (hardwareId) => parseInt(hardwareId) % 2 === 1;
+    const isRed = (hardwareId) => parseInt(hardwareId) % 2 === 1;
+    const isGreen = (hardwareId) => parseInt(hardwareId) % 2 === 0;
 
     //load players
     useEffect(() => {
