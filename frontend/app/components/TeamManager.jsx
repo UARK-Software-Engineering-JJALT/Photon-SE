@@ -7,7 +7,7 @@ import { usePlayers } from "../utils/PlayersContext"
 
 export default function TeamManager({socketRef}) {
     const [editingPlayer, setEditingPlayer] = useState(null)
-    const { players, setCurrPlayers } = usePlayers();
+    const { players, setCurrPlayers } = usePlayers([]);
 
     // Load from localStorage on mount
     useEffect(() => {
