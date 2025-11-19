@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { get_all_players, add_player } from "@/app/utils/db";
+import { get_all_players, add_player } from "../../utils/db";
 
 export async function GET() {
     try {
